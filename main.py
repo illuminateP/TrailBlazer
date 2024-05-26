@@ -12,6 +12,9 @@ import random
 """
 # !todo #
 farewell에 메시지 추가 - AI generate
+버튼이랑 레이아웃 싹 다듬고 절대위치가 아니라 relativelayout으로 해야 크로스 플랫폼 동작이 되겠죠?
+설치 파일로 압축하는 모듈이 있을거고
+테스트도 해야 하고
 
 # !rule #
 1. myAPp 안에서는 Pascal , 밖에서는 snake로 선언
