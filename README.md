@@ -9,8 +9,6 @@
 <Github 사용법> - Curated and Refined by gemini-1.5-pro-api-0514 at https://chat.lmsys.org/
 
 
-깃허브 초보 가이드
-
 0. Git 다운로드 및 설치
    - https://git-scm.com/ 에서 본인의 운영체제에 맞는 Git을 다운로드 후 설치합니다.
 
