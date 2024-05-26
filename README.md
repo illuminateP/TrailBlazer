@@ -7,6 +7,8 @@
 알고리즘 기말 과제 프로젝트 (일명 "길"잡이 : Trailblazer)
 
 <Github 사용법> - Curated and Refined by gemini-1.5-pro-api-0514 at https://chat.lmsys.org/
+
+
 깃허브 초보 가이드
 
 0. Git 다운로드 및 설치
