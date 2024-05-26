@@ -42,6 +42,13 @@
 6. 사용자 정보 설정
    - git config --global user.name "사용자 이름": 커밋할 사용자 이름을 설정합니다.
    - git config --global user.email "사용자 이메일": 커밋할 사용자 이메일을 설정합니다.
+   - 
+   - git congit config --global --unset user.name "사용자 이름" : 선택한 사용자 이름을 삭제합니다.
+   - git config --global --unset-all user.name : 전체 사용자 이름을 삭제합니다
+   - git congit config --global --unset user.email "사용자 이메일" : 선택한 사용자 이메일을 삭제합니다.
+   - git config --global --unset-all user.email : 전체 사용자 이메일을 삭제합니다
+  
+   - git config --global --list : 사용자 이메일과 이름의 목록을 보여줍니다.
 
 7. 원격 저장소 설정
    - git remote add origin <원격 저장소 주소>: 원격 저장소를 추가합니다. 
