@@ -3,7 +3,7 @@
 
 from screens import MyApp
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # 호출 시 자동 init     
     myapp = MyApp()
     myapp.run()

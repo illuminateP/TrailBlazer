@@ -1,10 +1,19 @@
 """
 
 # !todo #
+★ 1 제일 먼저 d.txt랑 이거랑 정리해서 제품 기능 목록 작성하고
+
+2. 변수명 규칙 정해서 통일감 있게
+   우선 스크린 이름 다 소문자 snake로 써야 해 screenmanager에서 parameter로 소문자만 받는다 
+   그럼 메서드는 파스칼로 쓰는게 좋겠지?
+   
+3. UI는 생각을 좀 해 봐야겠지만 우선 길찾기 1번 버튼(first_screen)에 붙히자
+
 farewell에 메시지 추가 - AI generate
-버튼이랑 레이아웃 싹 다듬고 절대위치가 아니라 relativelayout으로 해야 크로스 플랫폼 동작이 되겠죠?
+버튼이랑 레이아웃 싹 다듬고 Boxlayout가 아니라 relativelayout으로 해야 크로스 플랫폼 동작이 되겠죠?
 설치 파일로 압축하는 모듈이 있을거고
 테스트도 해야 하고
+다 하면 언어 추가랑 relative layout으로 전부 바꾸고 텍스트 string.py로 옮겨 적고 이스터에그 추가하고
 
 # !rule #
 1. myAPp 안에서는 Pascal , 밖에서는 snake로 선언
@@ -31,6 +40,8 @@ farewell에 메시지 추가 - AI generate
 
   4.자료가 정말 없고 그나마 있는 것도 영어 자료니까 한국어로 물어볼 때 AI도 이상한 소리를 많이 한다
 
+# !기능 구현 목록 #
+d.txt 참고
 """
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
@@ -46,9 +57,9 @@ import fonts
 import utils
 
 # MyApp 외부 메서드 , 선언 규칙 : Pascal
-class MainScreen(Screen):
+class main_screen(Screen):
     def __init__(self, app, **kwargs):
-        super(MainScreen, self).__init__(**kwargs)
+        super(main_screen, self).__init__(**kwargs)
         self.app = app
         self.layout = BoxLayout(orientation='vertical', spacing=10, padding=20)
         
@@ -78,17 +89,17 @@ class MainScreen(Screen):
         self.add_widget(self.layout)
         
     def start_button_clicked(self, instance):
-        print("시작 버튼이 클릭되었습니다.")
+        print("start button pressed")
 
     def first_button_clicked(self, instance):
-        print("기능 1번 버튼 클릭")
+        print("first button pressed")
         self.app.switch_to('first_screen') 
 
     def second_button_clicked(self, instance):
-        print("기능 2번 버튼 클릭")
+        print("second button pressed")
 
     def third_button_clicked(self, instance):
-        print("기능 3번 버튼 클릭")
+        print("third button pressed")
         
     def exit_button_clicked(self, instance):
         utils.Ending_Messages(self.app)
@@ -97,26 +108,30 @@ class MainScreen(Screen):
         
 
 
-class First_Screen(Screen):
+class first_screen(Screen):
     def __init__(self, app, **kwargs):
-        super(First_Screen, self).__init__(**kwargs)
+        super(first_screen, self).__init__(**kwargs)
         self.app = app
         self.layout = BoxLayout(orientation='vertical', spacing=10, padding=20)
 
-        print("FS!")
+        back_button = Button(text='뒤로 가기', size_hint=(1, 0.5), font_name='youth')
+        back_button.bind(on_press=self.back_to_main)
         
         exit_button = Button(text='종료', size_hint=(1, 0.5), font_name='youth')
         # 닫기 버튼을 눌렀을 때 종료창 호출
         exit_button.bind(on_press=self.exit_button_clicked)
         
+        self.layout.add_widget(back_button)
         self.layout.add_widget(exit_button)
         self.add_widget(self.layout)
 
     def back_to_main(self, instance):
-        self.app.switch_to(MainScreen(self.app))
+        self.app.switch_to('main_screen') 
+
         
     def exit_button_clicked(self, instance):
         utils.Ending_Messages(self.app)
+    
     
         
 class MyScreenManager(ScreenManager):  # ScreenManager 추가
@@ -128,12 +143,13 @@ class MyApp(App):
     def build(self):
         self.app = App
         self.screen_manager = MyScreenManager(self)
-        self.main_screen = MainScreen(self, name='main_screen')  # 수정: name 추가
-        self.first_screen = First_Screen(self, name='first_screen')  # 수정: name 추가
+        self.main_screen = main_screen(self, name='main_screen')  # 수정: name 추가
+        self.first_screen = first_screen(self, name='first_screen')  # 수정: name 추가
         
         self.screen_manager.add_widget(self.main_screen)
         self.screen_manager.add_widget(self.first_screen)
         
+        # 창에 상관없이 전역적으로 처리 
         Window.bind(on_request_close=self.on_request_close)
         return self.screen_manager
 
