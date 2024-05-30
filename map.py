@@ -26,7 +26,7 @@ current_dir = os.path.dirname(__file__)
 # 이미지 파일 경로 설정 (상대 경로)
 image_path = os.path.join(current_dir, "images", "map.png")
 
-def show_image(app):
+def Show_Image(app):
     # 이미지 경로 설정
     image_path = "path/to/your/image.jpg"  
 

@@ -43,6 +43,7 @@ farewell에 메시지 추가 - AI generate
 # !기능 구현 목록 #
 d.txt 참고
 """
+
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.boxlayout import BoxLayout
@@ -53,6 +54,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.image import Image
 from kivy.core.window import Window
 
+import map
 import fonts
 import utils
 
@@ -120,9 +122,14 @@ class first_screen(Screen):
         # 닫기 버튼을 눌렀을 때 종료창 호출
         Exit_Button.bind(on_press=self.Exit_Button_Clicked)
         
+        First_Button = Button(text='첫 번째 기능', size_hint=(1, 0.5), font_name='youth')
+        First_Button.bind(on_press=self.First_Button_Clicked)
+        
         self.layout.add_widget(back_button)
         self.layout.add_widget(Exit_Button)
+        self.layout.add_widget(First_Button)
         self.add_widget(self.layout)
+
 
     def Back_To_Main(self, instance):
         self.app.Switch_To('main_screen') 
@@ -131,6 +138,8 @@ class first_screen(Screen):
     def Exit_Button_Clicked(self, instance):
         utils.Ending_Messages(self.app)
     
+    def First_Button_Clicked(self,instance):
+        map.Show_Image(self.app)
     
         
 class MyScreenManager(ScreenManager):  # ScreenManager 추가
