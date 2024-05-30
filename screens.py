@@ -56,7 +56,7 @@ from kivy.core.window import Window
 import fonts
 import utils
 
-# MyApp 외부 메서드 , 선언 규칙 : Pascal
+# MyApp 외부 메서드 , 선언 규칙 : 스크린 = snake , 위젯 , 위젯 바인딩 메서드 = _pascal
 class main_screen(Screen):
     def __init__(self, app, **kwargs):
         super(main_screen, self).__init__(**kwargs)
@@ -66,42 +66,42 @@ class main_screen(Screen):
         # init 시 폰트 등록
         fonts.register_fonts()
 
-        start_button = Button(text='시작', size_hint=(1, 0.5), font_name='youth')
-        start_button.bind(on_press=self.start_button_clicked)
-        self.layout.add_widget(start_button)
+        Start_Button = Button(text='시작', size_hint=(1, 0.5), font_name='youth')
+        Start_Button.bind(on_press=self.Start_Button_Clicked)
+        self.layout.add_widget(Start_Button)
 
-        first_button = Button(text='1번째 기능', size_hint=(1, 0.5), font_name='youth')
-        first_button.bind(on_press=self.first_button_clicked)
-        self.layout.add_widget(first_button)
+        First_Button = Button(text='1번째 기능', size_hint=(1, 0.5), font_name='youth')
+        First_Button.bind(on_press=self.First_Button_Clicked)
+        self.layout.add_widget(First_Button)
 
-        second_button = Button(text='2번째 기능', size_hint=(1, 0.5), font_name='youth')
-        second_button.bind(on_press=self.second_button_clicked)
-        self.layout.add_widget(second_button)
+        Second_Button = Button(text='2번째 기능', size_hint=(1, 0.5), font_name='youth')
+        Second_Button.bind(on_press=self.Second_Button_Clicked)
+        self.layout.add_widget(Second_Button)
 
-        third_button = Button(text='3번째 기능', size_hint=(1, 0.5), font_name='youth')
-        third_button.bind(on_press=self.third_button_clicked)
-        self.layout.add_widget(third_button)
+        Third_Button = Button(text='3번째 기능', size_hint=(1, 0.5), font_name='youth')
+        Third_Button.bind(on_press=self.Third_Button_Clicked)
+        self.layout.add_widget(Third_Button)
 
-        exit_button = Button(text='종료', size_hint=(1, 0.5), font_name='youth')
-        exit_button.bind(on_press=self.exit_button_clicked)
-        self.layout.add_widget(exit_button)
+        Exit_Button = Button(text='종료', size_hint=(1, 0.5), font_name='youth')
+        Exit_Button.bind(on_press=self.Exit_Button_Clicked)
+        self.layout.add_widget(Exit_Button)
         
         self.add_widget(self.layout)
         
-    def start_button_clicked(self, instance):
+    def Start_Button_Clicked(self, instance):
         print("start button pressed")
 
-    def first_button_clicked(self, instance):
+    def First_Button_Clicked(self, instance):
         print("first button pressed")
-        self.app.switch_to('first_screen') 
+        self.app.Switch_To('first_screen') 
 
-    def second_button_clicked(self, instance):
+    def Second_Button_Clicked(self, instance):
         print("second button pressed")
 
-    def third_button_clicked(self, instance):
+    def Third_Button_Clicked(self, instance):
         print("third button pressed")
         
-    def exit_button_clicked(self, instance):
+    def Exit_Button_Clicked(self, instance):
         utils.Ending_Messages(self.app)
     
         
@@ -113,23 +113,22 @@ class first_screen(Screen):
         super(first_screen, self).__init__(**kwargs)
         self.app = app
         self.layout = BoxLayout(orientation='vertical', spacing=10, padding=20)
-
         back_button = Button(text='뒤로 가기', size_hint=(1, 0.5), font_name='youth')
-        back_button.bind(on_press=self.back_to_main)
+        back_button.bind(on_press=self.Back_To_Main)
         
-        exit_button = Button(text='종료', size_hint=(1, 0.5), font_name='youth')
+        Exit_Button = Button(text='종료', size_hint=(1, 0.5), font_name='youth')
         # 닫기 버튼을 눌렀을 때 종료창 호출
-        exit_button.bind(on_press=self.exit_button_clicked)
+        Exit_Button.bind(on_press=self.Exit_Button_Clicked)
         
         self.layout.add_widget(back_button)
-        self.layout.add_widget(exit_button)
+        self.layout.add_widget(Exit_Button)
         self.add_widget(self.layout)
 
-    def back_to_main(self, instance):
-        self.app.switch_to('main_screen') 
+    def Back_To_Main(self, instance):
+        self.app.Switch_To('main_screen') 
 
         
-    def exit_button_clicked(self, instance):
+    def Exit_Button_Clicked(self, instance):
         utils.Ending_Messages(self.app)
     
     
@@ -153,15 +152,15 @@ class MyApp(App):
         Window.bind(on_request_close=self.on_request_close)
         return self.screen_manager
 
-    def switch_to(self, screen_name):
+    def Switch_To(self, screen_name):
         self.screen_manager.current = screen_name
 
-    def toast_messages(self, title, message):
+    def Toast_Messages(self, title, message):
         toast_label = Label(text=message, font_name='youth')
         toast_popup = Popup(title=title, content=toast_label, auto_dismiss=False, size_hint=(None, None), size=(200, 100))
         toast_popup.open()
     
-    def exit_button_clicked(self, instance):
+    def Exit_Button_Clicked(self, instance):
         utils.Ending_Messages(self.app)
     
     def on_request_close(self, *args):
