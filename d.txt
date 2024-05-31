@@ -1,3 +1,9 @@
+1) 기능 보여줄 때는 
+main_screen 살리고 first_screen에 mapscreen 병합하고 동아리 찾기 기능 등 추가
+
+2) 나중에 릴리즈 할 때는
+map_screen 메인 화면으로 가게 바꾸고
+
 """
  # Updated at 240530 #
 

@@ -1,47 +1,31 @@
 """
-
-# !todo #
-★ 1 제일 먼저 d.txt랑 이거랑 정리해서 제품 기능 목록 작성하고
-
-2. 변수명 규칙 정해서 통일감 있게
-   우선 스크린 이름 다 소문자 snake로 써야 해 screenmanager에서 parameter로 소문자만 받는다 
-   그럼 메서드는 파스칼로 쓰는게 좋겠지?
-   
-3. UI는 생각을 좀 해 봐야겠지만 우선 길찾기 1번 버튼(first_screen)에 붙히자
-
-farewell에 메시지 추가 - AI generate
-버튼이랑 레이아웃 싹 다듬고 Boxlayout가 아니라 relativelayout으로 해야 크로스 플랫폼 동작이 되겠죠?
-설치 파일로 압축하는 모듈이 있을거고
-테스트도 해야 하고
-다 하면 언어 추가랑 relative layout으로 전부 바꾸고 텍스트 string.py로 옮겨 적고 이스터에그 추가하고
-
 # !rule #
-1. myAPp 안에서는 Pascal , 밖에서는 snake로 선언
-2. 되도록 위젯만 MyApp 안에 추가
-3. 기능 관련 기능은 다 밖으로 빼서 선언
-4. 위젯에 한국어 등록할 때는 전부 font_name='youth' 있어야 함\
-5. 이거 모듈화 해야 함
+1 . TrailBlazer.py -> 구동부
+2. screens.py -> 화면 내 로직과 위젯 관리 , 위젯부와 로직부 분리할 지 생각 중이다. 현재는 스크린 내 로직도 작성되어 있다.
+screen 명 작성 규칙 : snake 
+★ screen 추가 시 1) 이름이 소문자인지 , snake 규칙을 따르는지 확인하고
+2)
+class first_screen(Screen):
+    def __init__(self, app, **kwargs):
+        super(first_screen, self).__init__(**kwargs)
+        self.app = app
+    으로 init시 app parameter passing 확인하며
+3)
+class MyApp(App):
+    def build(self):
+        self.screen_manager.add_widget(self.main_screen)
+        self.screen_manager.add_widget(self.first_screen)
+    로 screen_mananger에 스크린 등록하고 있는지 확인!  
+    
+3. utils.py -> 종료와 farewell 기능 불러오는 위젯이고 화면 구성 시 종료 , 취소 버튼과 screen 내에서 binding한다.
+4. fonts.py -> 폰트 불러오는 모듈 , first_screen __init__가 아니라 myAPP build 시로 가야 한다.
+5. strings.py -> 사용할 스트링 불러오는 모델 , fonts.py랑 묶어서 처리하도록 바꿔야 한다
+6. map.py -> 지도 기능에 사용할 모듈이고 기능별로 모듈 분리할거면 first_screen 여기다 붙혀야 한다.
 
-# !note #
-1. kivy는 한글 지원 안 해서 폰트로 받아와야 하는데 , 그게 안 되는 Ending_Messages 부분에는 custom title 바 추가하거나 (llama3) , 
-    그냥 타이틀에 한글 쳐박으면 된다고 우기거나(gpt4o) 하는데 에러 메시지에 정답이 써 있었음
-    결론 : AI는 생각보다 멍청하니까 너무 의존하지 말고 공식 문서를 먼저 보자
-    Popup(title = '잘 가요! 이거 만드느라 얼마나 고생했는지 당신은 모를 거에요', title_font='youth' , content=Toast_Layout, auto_dismiss=False, size_hint=(0.8, None))
-    -> 이거 title_font 추가해야 한다는 거 프로퍼티 에러 메시지
-  TypeError: Properties ['font_name'] passed to __init__ may not be existing property names. Valid properties are 
-  ['_anim_alpha', '_anim_duration', '_container', '_is_open', '_window', 'anchor_x', 'anchor_y', 'attach_to', 'auto_dismiss', 'background', 'background_color', 'border', 'center', 'center_x', 'center_y', 'children', 'cls', 'content', 'disabled', 'height', 'ids', 'motion_filter', 'opacity', 'overlay_color', 'padding', 'parent', 'pos', 'pos_hint', 'right', 'separator_color', 'separator_height', 
-  'size', 'size_hint', 'size_hint_max', 'size_hint_max_x', 'size_hint_max_y', 'size_hint_min', 'size_hint_min_x', 'size_hint_min_y', 'size_hint_x', 'size_hint_y', 'title', 'title_align', 'title_color', 'title_font', 'title_size', 'top', 'width', 'x', 'y']
-  여기서 찾음
 
-  2. 한글 지원 안 되는 라이브러리 쓰니까 진짜 ㅆ
-  아니 힘들었다
+7. 위젯에 한국어 등록할 때는 전부 font_name='youth' 있어야한다. 이는 비 라틴언어 모두에 해당하며 , 영어 제외하면 폰트 전부 적어줘야 한다.
+8. 기능별로 모듈 분리할지 , 화면별로 분류해서 Screen.py에 배치할 지 생각 , 내부 로직부분과 분리하는 게 좋을 것 같은데
 
-  3.내가 프론트를 더럽게 못 하는데 AI가 대신 해 줘서 편했다
-
-  4.자료가 정말 없고 그나마 있는 것도 영어 자료니까 한국어로 물어볼 때 AI도 이상한 소리를 많이 한다
-
-# !기능 구현 목록 #
-d.txt 참고
 """
 
 from kivy.app import App
@@ -55,10 +39,10 @@ from kivy.uix.image import Image
 from kivy.core.window import Window
 from kivy.garden.mapview import MapView
 
-
-import map
 import fonts
 import utils
+
+import os
 
 # MyApp 외부 메서드 , 선언 규칙 : 스크린 = snake , 위젯 , 위젯 바인딩 메서드 = _pascal
 class main_screen(Screen):
@@ -70,11 +54,7 @@ class main_screen(Screen):
         # init 시 폰트 등록
         fonts.register_fonts()
 
-        Start_Button = Button(text='시작', size_hint=(1, 0.5), font_name='youth')
-        Start_Button.bind(on_press=self.Start_Button_Clicked)
-        self.layout.add_widget(Start_Button)
-
-        First_Button = Button(text='1번째 기능', size_hint=(1, 0.5), font_name='youth')
+        First_Button = Button(text='길찾기 기능!', size_hint=(1, 0.5), font_name='youth')
         First_Button.bind(on_press=self.First_Button_Clicked)
         self.layout.add_widget(First_Button)
 
@@ -91,9 +71,6 @@ class main_screen(Screen):
         self.layout.add_widget(Exit_Button)
         
         self.add_widget(self.layout)
-        
-    def Start_Button_Clicked(self, instance):
-        print("start button pressed")
 
     def First_Button_Clicked(self, instance):
         print("first button pressed")
@@ -111,28 +88,62 @@ class main_screen(Screen):
         
         
 
-# 처음 화면 (예정)
+# 길찾기 제공하는 화면 
 class first_screen(Screen):
     def __init__(self, app, **kwargs):
         super(first_screen, self).__init__(**kwargs)
         self.app = app
-        self.layout = BoxLayout(orientation='vertical', spacing=10, padding=20)
-        back_button = Button(text='뒤로 가기', size_hint=(1, 0.5), font_name='youth')
-        back_button.bind(on_press=self.Back_To_Main)
+        self.layout = BoxLayout(orientation='horizontal', spacing=10, padding=20)
+        self.toolbar = BoxLayout(orientation='vertical', spacing=10, padding=20)
         
-        Exit_Button = Button(text='종료', size_hint=(1, 0.5), font_name='youth')
+        # main_screen으로 돌아가는 버튼
+        Back_Button = Button(text='뒤로 가기', size_hint=(1, 0.5), font_name='youth')
+        Back_Button.bind(on_press=self.Back_To_Main)
+        self.toolbar.add_widget(Back_Button)
+        
+        First_Functional_Button = Button(text='첫 번째 기능', size_hint=(1, 0.5), font_name='youth')
+        First_Functional_Button.bind(on_press=self.First_Functional_Button_Clicked)
+        self.toolbar.add_widget(First_Functional_Button)
+        
+        Second_Functional_Button = Button(text='두 번째 기능', size_hint=(1, 0.5), font_name='youth')
+        Second_Functional_Button.bind(on_press=self.Second_Functional_Button_Clicked)
+        self.toolbar.add_widget(Second_Functional_Button)
+        
+        
+        Third_Functional_Button = Button(text='세 번째 기능', size_hint=(1, 0.5), font_name='youth')
+        Third_Functional_Button.bind(on_press=self.Third_Functional_Button_Clicked)
+        self.toolbar.add_widget(Third_Functional_Button)
+
+        Fourth_Functional_Button = Button(text='네 번째 기능', size_hint=(1, 0.5), font_name='youth')
+        Fourth_Functional_Button.bind(on_press=self.Fourth_Functional_Button_Clicked)
+        self.toolbar.add_widget(Fourth_Functional_Button)
+
+        Fifth_Functional_Button = Button(text='다섯 번째 기능', size_hint=(1, 0.5), font_name='youth')
+        Fifth_Functional_Button.bind(on_press=self.Fifth_Functional_Button_Clicked)
+        self.toolbar.add_widget(Fifth_Functional_Button)
+        
         # 닫기 버튼을 눌렀을 때 종료창 호출
+        Exit_Button = Button(text='종료', size_hint=(1, 0.5), font_name='youth')
         Exit_Button.bind(on_press=self.Exit_Button_Clicked)
+        self.toolbar.add_widget(Exit_Button)
         
-        First_Button = Button(text='첫 번째 기능', size_hint=(1, 0.5), font_name='youth')
-        First_Button.bind(on_press=self.First_Button_Clicked)
+        self.layout.add_widget(self.toolbar)
         
-        self.layout.add_widget(back_button)
-        self.layout.add_widget(Exit_Button)
-        self.layout.add_widget(First_Button)
+        # 맵뷰와 이미지 겹쳐 표시할 위젯
+        self.map_layout = BoxLayout(orientation='horizontal', spacing=10, padding=20)
+        self.map_view = MapView(zoom=11, lat=37.7749, lon=-122.4194, size_hint=(1, 0.7))  # Example coordinates for San Francisco
+        
+        current_dir = os.path.dirname(__file__)
+        image_path = os.path.join(current_dir, "assets", "blueprintmap.png")
+        Image_Blueprint = Image(source=image_path)
+        self.map_layout.add_widget(self.map_view)
+        self.map_layout.add_widget(Image_Blueprint)
+
+        self.layout.add_widget(self.map_layout)
         self.add_widget(self.layout)
+    
 
-
+    
     def Back_To_Main(self, instance):
         self.app.Switch_To('main_screen') 
 
@@ -140,9 +151,24 @@ class first_screen(Screen):
     def Exit_Button_Clicked(self, instance):
         utils.Ending_Messages(self.app)
     
-    def First_Button_Clicked(self,instance):
-        self.app.Switch_To('map_screen') 
+    def First_Functional_Button_Clicked(self,instance):
+        print("First Functinal Button clicked!")
+        
+    def Second_Functional_Button_Clicked(self,instance):
+        print("Second Functional Button clicked!")
     
+    def Third_Functional_Button_Clicked(self,instance):
+        print("Third Functional Button clicked!")
+        
+    def Fourth_Functional_Button_Clicked(self,instance):
+        print("Fourth Functional Button clicked!")
+          
+    def Fifth_Functional_Button_Clicked(self,instance):
+        print("Fifth Functional Button clicked!")
+    
+    
+
+""" 
 # map.py 내용 보여줄 스크린
 class map_screen(Screen):
     def __init__(self, app, **kwargs):
@@ -155,9 +181,9 @@ class map_screen(Screen):
         self.layout.add_widget(self.image) 
 
         # 뒤로 가기 버튼
-        back_button = Button(text='뒤로 가기', size_hint=(1, 0.5), font_name='youth')
-        back_button.bind(on_press=self.Back_To_First)
-        self.layout.add_widget(back_button)
+        Back_Button = Button(text='뒤로 가기', size_hint=(1, 0.5), font_name='youth')
+        Back_Button.bind(on_press=self.Back_To_First)
+        self.layout.add_widget(Back_Button)
 
         # 종료 버튼
         Exit_Button = Button(text='종료', size_hint=(1, 0.5), font_name='youth')
@@ -171,7 +197,8 @@ class map_screen(Screen):
 
     def Exit_Button_Clicked(self, instance):
         utils.Ending_Messages(self.app)        
-        
+    
+"""       
 class MyScreenManager(ScreenManager):  # ScreenManager 추가
     def __init__(self, app, **kwargs):
         super(MyScreenManager, self).__init__(**kwargs)
@@ -181,8 +208,11 @@ class MyApp(App):
     def build(self):
         self.app = App
         self.screen_manager = MyScreenManager(self)
-        self.main_screen = main_screen(self, name='main_screen')  # 수정: name 추가
-        self.first_screen = first_screen(self, name='first_screen')  # 수정: name 추가
+        fonts.register_fonts()
+        
+        self.main_screen = main_screen(self, name='main_screen')  
+        self.first_screen = first_screen(self, name='first_screen')  
+        
         
         self.screen_manager.add_widget(self.main_screen)
         self.screen_manager.add_widget(self.first_screen)
