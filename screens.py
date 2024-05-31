@@ -53,6 +53,8 @@ from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.image import Image
 from kivy.core.window import Window
+from kivy.garden.mapview import MapView
+
 
 import map
 import fonts
@@ -109,7 +111,7 @@ class main_screen(Screen):
         
         
 
-
+# 처음 화면 (예정)
 class first_screen(Screen):
     def __init__(self, app, **kwargs):
         super(first_screen, self).__init__(**kwargs)
@@ -139,8 +141,36 @@ class first_screen(Screen):
         utils.Ending_Messages(self.app)
     
     def First_Button_Clicked(self,instance):
-        map.Show_Image(self.app)
+        self.app.Switch_To('map_screen') 
     
+# map.py 내용 보여줄 스크린
+class map_screen(Screen):
+    def __init__(self, app, **kwargs):
+        super(map_screen, self).__init__(**kwargs)
+        self.app = app
+        self.layout = BoxLayout(orientation='vertical', spacing=10, padding=20)
+        
+        # 지도 이미지 설정
+        self.image = Image(source="assets/blueprintmap.png")
+        self.layout.add_widget(self.image) 
+
+        # 뒤로 가기 버튼
+        back_button = Button(text='뒤로 가기', size_hint=(1, 0.5), font_name='youth')
+        back_button.bind(on_press=self.Back_To_First)
+        self.layout.add_widget(back_button)
+
+        # 종료 버튼
+        Exit_Button = Button(text='종료', size_hint=(1, 0.5), font_name='youth')
+        Exit_Button.bind(on_press=self.Exit_Button_Clicked)
+        self.layout.add_widget(Exit_Button)
+
+        self.add_widget(self.layout)
+
+    def Back_To_First(self, instance):
+        self.app.Switch_To('first_screen')
+
+    def Exit_Button_Clicked(self, instance):
+        utils.Ending_Messages(self.app)        
         
 class MyScreenManager(ScreenManager):  # ScreenManager 추가
     def __init__(self, app, **kwargs):

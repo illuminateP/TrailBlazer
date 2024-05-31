@@ -1,16 +1,21 @@
 """
-# !todo #
-farewell에 메시지 추가 - AI generate
-버튼이랑 레이아웃 싹 다듬고 절대위치가 아니라 relativelayout으로 해야 크로스 플랫폼 동작이 되겠죠?
-설치 파일로 압축하는 모듈이 있을거고
-테스트도 해야 하고  
-
+##################################################################################
 # !rule #
-1. myAPp 안에서는 Pascal , 밖에서는 snake로 선언
-2. 되도록 위젯만 MyApp 안에 추가
-3. 기능 관련 기능은 다 밖으로 빼서 선언
-4. 위젯에 한국어 등록할 때는 전부 font_name='youth' 있어야 함
-5. 메인에서 kivy 받아 와서 사용
+1. TrailBlazer.py -> 구동부
+2. screens.py -> 화면 내 로직과 위젯 관리 , 위젯부와 로직부 분리할 지 생각 중이다. 현재는 스크린 내 로직도 작성되어 있다.
+screen 명 작성 규칙 : snake
+3. utils.py -> 종료와 farewell 기능 불러오는 위젯이고 화면 구성 시 종료 , 취소 버튼과 screen 내에서 binding한다.
+4. fonts.py -> 폰트 불러오는 모듈 , first_screen __init__가 아니라 myAPP build 시로 가야 한다.
+5. strings.py -> 사용할 스트링 불러오는 모델 , fonts.py랑 묶어서 처리하도록 바꿔야 한다
+6. map.py -> 지도 기능에 사용할 모듈이고 기능별로 모듈 분리할거면 first_screen 여기다 붙혀야 한다.
+
+
+7. 위젯에 한국어 등록할 때는 전부 font_name='youth' 있어야한다. 이는 비 라틴언어 모두에 해당하며 , 영어 제외하면 폰트 전부 적어줘야 한다.
+8. 기능별로 모듈 분리할지 , 화면별로 분류해서 Screen.py에 배치할 지 생각 , 내부 로직부분과 분리하는 게 좋을 것 같은데
+
+
+##################################################################################
+
 
 """
 
@@ -20,15 +25,15 @@ from kivy.uix.image import Image
 from kivy.uix.popup import Popup
 import os
 
-# 현재 파일이 있는 디렉토리 경로 가져오기
-current_dir = os.path.dirname(__file__)
-
-# 이미지 파일 경로 설정 (상대 경로)
-image_path = os.path.join(current_dir, "images", "map.png")
 
 def Show_Image(app):
-    # 이미지 경로 설정
-    image_path = "path/to/your/image.jpg"  
+    
+    # 현재 파일이 있는 디렉토리 경로 가져오기
+    current_dir = os.path.dirname(__file__)
+
+    # 이미지 파일 경로 설정 (상대 경로)
+    image_path = os.path.join(current_dir, "assets", "blueprintmap.png")
+
 
     # 이미지 뷰 생성
     image_widget = Image(source=image_path)

@@ -1,12 +1,15 @@
 """
  # Updated at 240530 #
 
+건물을 노드로 추상화 , 건물 내의 시설은 리스트 안에 튜플 / 딕셔너리로 노드 안에 포함
+그래프는 인접 행렬과 인접 리스트로 표현할 수 있는데 , 인접 리스트 사용
+힌트 기능에 메모리제이션(동적 프로그래밍)사용
+map.py 안에 그래프 처리하고 , screen.py안에서 screen 정의
 ##################################################################################
 ✔✔✔
 # !기능 구현 목록 #
-"""
 버튼을 누르면 지도에서
-우체국 , 근처 식당 , 학식 위치 표시
+우체국 , 근처 식당 , 학식 위치, 주차 공간 표시
 프린트 , ATM , 편의점/매점 , 자판기 , 아라크네 , 샤워실이 있는 건물과 층, 사진 표시 -> 학교 홈페이지에 있어요
 한 번 누르면 해당 노드에 아이콘이 올라오고 , 한 번 더 누르면 아이콘이 꺼진다
 현재 시간을 받아와서 건물 운영 시간이 지나면 건물 불이 꺼지고 운영중인 건물은 아이콘을 밝게 표시하는 기능을
@@ -20,6 +23,8 @@
 
 흡연구역 , 샤워실 학생회에 물어보면 알겠죠?
 프린트 , 자판기는 업체에 전화하거나 학생처에 물어보면 알 거고
+
+동적 기법 : 힌트 기능에 자주 검색하는 내용은 힙 앞으로 저장
 
 - 대신 버튼 한번 누르면 overlay되어 겹치고 한 번 더 누르면 꺼지게
 지도 위에 노드 보여주려면 음... 
@@ -106,3 +111,229 @@ screen 명 작성 규칙 : snake
   4.자료가 정말 없고 그나마 있는 것도 영어 자료니까 한국어로 물어볼 때 AI도 이상한 소리를 많이 한다
 
 ##################################################################################
+"""
+네, Kivy 어플리케이션에서 생성한 창 위에 NetworkX로 그린 그래프를 겹쳐 띄울 수 있습니다. 이를 위해서는 Kivy의 `FigureCanvasKivyAgg` 위젯을 사용하여 NetworkX 그래프를 Kivy 어플리케이션에 통합할 수 있습니다.
+
+다음은 Kivy 어플리케이션에서 NetworkX 그래프를 그리고 표시하는 예시 코드입니다:
+
+```python
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
+import networkx as nx
+import matplotlib.pyplot as plt
+
+class GraphApp(App):
+    def build(self):
+        layout = BoxLayout(orientation='vertical')
+        
+        # NetworkX 그래프 생성
+        G = nx.Graph()
+        G.add_edge('A', 'B', weight=4)
+        G.add_edge('B', 'D', weight=2)
+        G.add_edge('A', 'C', weight=3)
+        G.add_edge('C', 'D', weight=1)
+        pos = nx.spring_layout(G)
+        
+        # Matplotlib Figure 생성
+        fig, ax = plt.subplots()
+        nx.draw(G, pos, ax=ax, with_labels=True)
+        
+        # Kivy FigureCanvasKivyAgg 위젯 생성
+        canvas = FigureCanvasKivyAgg(fig)
+        
+        # 레이아웃에 FigureCanvasKivyAgg 위젯 추가
+        layout.add_widget(canvas)
+        
+        return layout
+
+if __name__ == '__main__':
+    GraphApp().run()
+```
+
+위의 코드에서는 다음과 같은 단계를 수행합니다:
+
+1. Kivy 어플리케이션의 `build()` 메서드에서 `BoxLayout`을 생성합니다.
+2. NetworkX를 사용하여 그래프를 생성하고 노드와 엣지를 추가합니다.
+3. Matplotlib의 `subplots()` 함수를 사용하여 Figure와 Axes 객체를 생성합니다.
+4. NetworkX의 `draw()` 함수를 사용하여 그래프를 Matplotlib Figure에 그립니다.
+5. `FigureCanvasKivyAgg` 위젯을 생성하여 Matplotlib Figure를 Kivy 캔버스로 변환합니다.
+6. `BoxLayout`에 `FigureCanvasKivyAgg` 위젯을 추가합니다.
+7. Kivy 어플리케이션을 실행합니다.
+
+이렇게 하면 Kivy 어플리케이션 창에 NetworkX 그래프가 그려진 것을 볼 수 있습니다. 필요에 따라 그래프의 모양과 레이아웃을 조정할 수 있습니다.
+
+참고로 `kivy.garden.matplotlib` 패키지를 사용하려면 별도로 설치해야 합니다. 다음 명령어를 사용하여 설치할 수 있습니다:
+
+```
+pip install kivy-garden
+garden install matplotlib
+```
+
+이렇게 하면 Kivy 어플리케이션에서 NetworkX 그래프를 쉽게 통합하고 표시할 수 있습니다.
+
+Kivy 애플리케이션에서 사용자의 현재 위치를 불러오는 기능은 플랫폼별로 다른 방식으로 구현해야 합니다. Android, iOS, Windows, Linux 등 각 플랫폼에서 위치 정보를 얻는 방법이 다르기 때문입니다. 이를 위해 `kivy-garden`에서 제공하는 `gps` 라이브러리를 사용하면 멀티 플랫폼 지원을 간편하게 구현할 수 있습니다.
+
+**1. kivy-garden 설치:**
+
+```bash
+pip install kivy-garden
+garden install gps
+```
+
+**2. `screen.py`에 위치 정보 가져오기 기능 추가:**
+
+```python
+from kivy.app import App
+from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.core.text import LabelBase
+from kivy.uix.label import Label
+from kivy.uix.popup import Popup
+from kivy.uix.image import Image
+from kivy.core.window import Window
+from kivy.clock import Clock
+
+import map
+import fonts
+import utils
+from kivy_garden.gps import Gps
+
+# ... (기존 코드) ...
+
+class main_screen(Screen):
+    # ... (기존 코드) ...
+
+    def on_enter(self):
+        # 위치 정보를 가져오는 Gps 객체 생성
+        self.gps = Gps(on_location=self.on_gps_location, on_status=self.on_gps_status)
+
+    def on_gps_location(self, *args):
+        # 위치 정보를 얻어 처리하는 코드
+        latitude, longitude = args[0]
+        print(f"위도: {latitude}, 경도: {longitude}")
+        # 여기에 위치 정보를 활용하는 추가 코드 작성 (예: 지도에 마커 표시)
+
+    def on_gps_status(self, status):
+        # GPS 상태를 확인하는 코드
+        print(f"GPS status: {status}")
+        if status == 'started':
+            print("GPS가 시작되었습니다.")
+        elif status == 'stopped':
+            print("GPS가 중지되었습니다.")
+
+    def stop_gps(self):
+        # GPS 중지 기능 추가
+        if self.gps:
+            self.gps.stop()
+
+    # ... (기존 코드) ...
+
+class first_screen(Screen):
+    # ... (기존 코드) ...
+
+    # GPS 중지 기능 추가
+    def on_leave(self):
+        if self.gps:
+            self.gps.stop()
+        # ... (기존 코드) ...
+
+# ... (기존 코드) ... 
+```
+
+**설명:**
+
+1. `main_screen`에서 `on_enter` 메서드를 추가하여 화면이 나타날 때 `Gps` 객체를 생성합니다.
+2. `on_gps_location` 메서드를 통해 GPS 위치 정보를 받아 처리합니다.
+3. `on_gps_status` 메서드는 GPS 상태를 확인합니다.
+4. `stop_gps` 메서드는 GPS를 중지하는 기능을 추가했습니다.
+5. `first_screen`의 `on_leave` 메서드에 GPS를 중지하는 코드를 추가하여 다른 화면으로 이동할 때 GPS를 꺼줍니다.
+
+**3. `map.py`에 지도 표시 및 마커 추가:**
+
+```python
+# ... (기존 코드) ...
+
+def Show_Image(app):
+  # ... (기존 코드) ...
+
+  # map_screen에서 GPS 위치 정보 이용
+  map_screen = app.screen_manager.get_screen('map_screen')
+  if map_screen:
+    latitude, longitude = map_screen.gps.get_location()
+    if latitude and longitude:
+      # 지도에 마커 표시 (추가 로직 필요)
+      print(f'현재 위치: 위도: {latitude}, 경도: {longitude}') 
+# ... (기존 코드) ...
+```
+
+**4. 추가 구현:**
+
+- **지도 라이브러리:** `kivy.uix.image` 대신 `kivy_garden.mapview` 또는 `kivy-garden.googlemaps`와 같은 지도 라이브러리를 사용하여 지도를 표시하고 마커를 추가할 수 있습니다.
+- **권한 요청:** Android 및 iOS에서는 위치 정보를 사용하려면 사용자의 권한 요청이 필요합니다. `kivy-garden.permissions` 라이브러리를 사용하여 권한을 요청할 수 있습니다.
+
+**주의사항:**
+
+* `kivy-garden.gps`는 GPS 정보를 얻는 데 도움을 주지만, 지도 표시는 별도의 라이브러리를 사용해야 합니다.
+* `kivy-garden.gps`는 플랫폼 의존적인 라이브러리이므로, 각 플랫폼에서 정상적으로 작동하는지 확인해야 합니다.
+* 사용자의 위치 정보를 처리하는 경우, 개인 정보 보호 규정을 준수해야 합니다.
+
+이 코드를 통해 Kivy 애플리케이션에서 멀티 플랫폼 환경에서 사용자의 현재 위치를 가져와 지도에 표시할 수 있습니다. 
+
+**참고:**
+
+- `kivy-garden.gps` 문서: [https://kivy-garden.github.io/gps/](https://kivy-garden.github.io/gps/)
+- `kivy-garden.mapview` 문서: [https://kivy-garden.github.io/mapview/](https://kivy-garden.github.io/mapview/)
+- `kivy-garden.googlemaps` 문서: [https://kivy-garden.github.io/googlemaps/](https://kivy-garden.github.io/googlemaps/)
+- `kivy-garden.permissions` 문서: [https://kivy-garden.github.io/permissions/](https://kivy-garden.github.io/permissions/)
+
+네, 사용자의 위치 정보를 처리할 때 개인 정보 보호 규정을 준수하는 것은 매우 중요합니다. 사용자의 위치 정보는 민감한 개인 정보로 간주되며, 이를 부적절하게 사용하면 심각한 결과를 초래할 수 있습니다. 
+
+**개인 정보 보호 규정 준수를 위한 핵심 사항:**
+
+1. **명확한 정보 제공 및 동의:**
+   - 사용자에게 위치 정보를 수집하는 이유와 목적을 명확하게 설명해야 합니다.
+   - 사용자로부터 위치 정보 수집 및 사용에 대한 명확한 동의를 얻어야 합니다.
+   - 동의는 명확하고 간결한 언어로 제공되어야 하며, 사용자가 쉽게 이해할 수 있어야 합니다.
+   - 사용자는 언제든지 동의를 철회할 수 있어야 합니다.
+
+2. **최소한의 데이터 수집:**
+   - 애플리케이션에서 수행하는 기능에 필요한 최소한의 위치 정보만 수집해야 합니다.
+   - 사용자의 위치 정보를 다른 목적으로 사용하지 않아야 합니다. 
+   - 예를 들어, 날씨 앱에서는 현재 위치만 필요하지만, 택시 호출 앱에서는 출발지와 목적지를 모두 알아야 합니다.
+
+3. **보안 유지 및 암호화:**
+   - 수집한 위치 정보는 보안이 유지되어야 하며, 무단 접근을 방지해야 합니다.
+   - 데이터를 암호화하여 저장하고 전송해야 합니다.
+   - 앱에 보안 취약점이 있는지 정기적으로 점검해야 합니다.
+
+4. **데이터 삭제 및 보관 기간:**
+   - 더 이상 필요하지 않은 위치 정보는 즉시 삭제해야 합니다.
+   - 위치 정보를 보관하는 경우, 최소한의 기간만 보관해야 하며, 적절한 보관 및 삭제 정책을 수립해야 합니다.
+
+5. **투명성 및 제어:**
+   - 사용자에게 위치 정보 수집 및 사용에 대한 투명성을 제공해야 합니다.
+   - 사용자가 자신의 위치 정보에 대한 접근, 수정 및 삭제를 제어할 수 있도록 기능을 제공해야 합니다.
+   - 사용자에게 위치 정보 설정을 편리하게 변경할 수 있는 방법을 제공해야 합니다.
+
+**위치 정보 보호를 위한 추가 팁:**
+
+* **어플리케이션 내에서 위치 정보 사용을 명확히 표시:** 사용자가 언제 위치 정보를 사용하는지 명확히 알 수 있도록 UI에 표시해야 합니다. 예를 들어, 위치 정보를 사용하는 기능을 활성화하거나 비활성화할 수 있는 옵션을 제공해야 합니다.
+* **위치 정보 수집 빈도 제한:**  애플리케이션의 기능에 필요한 경우에만 위치 정보를 수집해야 하며, 잦은 수집은 사용자의 배터리를 소모시킬 수 있습니다.
+* **위치 정보 정확도 제어:**  애플리케이션의 기능에 필요한 수준의 정확도로 위치 정보를 수집해야 합니다. 
+* **사용자에게 정보를 제공:** 사용자에게 자신의 위치 정보가 어떻게 사용되는지 정기적으로 알려야 합니다. 예를 들어, 사용자의 위치 정보가 다른 서비스와 공유되거나 분석에 사용되는 경우, 이를 사용자에게 알려야 합니다.
+
+**개인 정보 보호 규정 위반 시:**
+
+* 벌금, 소송 등의 법적 처벌
+* 사용자 신뢰도 저하
+* 기업 이미지 실추
+
+**참고:**
+
+* **GDPR (General Data Protection Regulation):** 유럽 연합에서 제정한 개인 정보 보호 규정으로, 전 세계 많은 기업들이 이 규정을 준수해야 합니다.
+* **CCPA (California Consumer Privacy Act):** 캘리포니아주에서 제정된 개인 정보 보호 규정입니다.
+* **개인정보보호위원회:** 한국에서 개인 정보 보호를 담당하는 정부 기관입니다.
+
+위치 정보는 사용자에게 매우 중요한 개인 정보이며, 개발자는 앱 개발 과정에서 개인 정보 보호를 최우선으로 생각해야 합니다.
