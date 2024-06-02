@@ -19,7 +19,7 @@ class MyApp(App):
     
 3. utils.py -> 종료와 farewell 기능 불러오는 위젯이고 화면 구성 시 종료 , 취소 버튼과 screen 내에서 binding한다.
 4. fonts.py -> 폰트 불러오는 모듈 , first_screen __init__가 아니라 myAPP build 시로 가야 한다.
-5. strings.py -> 사용할 스트링 불러오는 모델 , fonts.py랑 묶어서 처리하도록 바꿔야 한다
+5. strings.py -> 사용할 스트링 불러오는 모델 , fonts.py랑        묶어서 처리하도록 바꿔야 한다
 6. map.py -> 지도 기능에 사용할 모듈이고 기능별로 모듈 분리할거면 first_screen 여기다 붙혀야 한다.
 
 
@@ -37,6 +37,7 @@ from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.image import Image
 from kivy.core.window import Window
+from plyer import gps
 from kivy.garden.mapview import MapView
 
 import fonts
@@ -50,9 +51,6 @@ class main_screen(Screen):
         super(main_screen, self).__init__(**kwargs)
         self.app = app
         self.layout = BoxLayout(orientation='vertical', spacing=10, padding=20)
-        
-        # init 시 폰트 등록
-        fonts.register_fonts()
 
         First_Button = Button(text='길찾기 기능!', size_hint=(1, 0.5), font_name='youth')
         First_Button.bind(on_press=self.First_Button_Clicked)
@@ -95,6 +93,12 @@ class first_screen(Screen):
         self.app = app
         self.layout = BoxLayout(orientation='horizontal', spacing=10, padding=20)
         self.toolbar = BoxLayout(orientation='vertical', spacing=10, padding=20)
+        
+        # MapView for showing the user's location
+        self.map_view = MapView(zoom=11, size_hint=(1, 0.7))
+        self.layout.add_widget(self.map_view)
+
+        self.add_widget(self.layout)
         
         # main_screen으로 돌아가는 버튼
         Back_Button = Button(text='뒤로 가기', size_hint=(1, 0.5), font_name='youth')
@@ -141,8 +145,7 @@ class first_screen(Screen):
 
         self.layout.add_widget(self.map_layout)
         self.add_widget(self.layout)
-    
-
+        
     
     def Back_To_Main(self, instance):
         self.app.Switch_To('main_screen') 
@@ -166,39 +169,26 @@ class first_screen(Screen):
     def Fifth_Functional_Button_Clicked(self,instance):
         print("Fifth Functional Button clicked!")
     
+    def show_consent_popup(self):
+        content = BoxLayout(orientation='vertical', spacing=10, padding=20)
+        label = Label(text='위치 정보를 제공하시겠습니까?', font_name='youth')
+        consent_button = Button(text='동의', font_name='youth')
+        decline_button = Button(text='거절', font_name='youth')
+
+        consent_button.bind(on_press=self.user_consented)
+        decline_button.bind(on_press=self.popup_dismiss)
+
+        content.add_widget(label)
+        content.add_widget(consent_button)
+        content.add_widget(decline_button)
+
+        self.popup = Popup(title='위치 정보 제공 동의', content=content, size_hint=(0.8, 0.4))
+        self.popup.open()
     
-
-""" 
-# map.py 내용 보여줄 스크린
-class map_screen(Screen):
-    def __init__(self, app, **kwargs):
-        super(map_screen, self).__init__(**kwargs)
-        self.app = app
-        self.layout = BoxLayout(orientation='vertical', spacing=10, padding=20)
-        
-        # 지도 이미지 설정
-        self.image = Image(source="assets/blueprintmap.png")
-        self.layout.add_widget(self.image) 
-
-        # 뒤로 가기 버튼
-        Back_Button = Button(text='뒤로 가기', size_hint=(1, 0.5), font_name='youth')
-        Back_Button.bind(on_press=self.Back_To_First)
-        self.layout.add_widget(Back_Button)
-
-        # 종료 버튼
-        Exit_Button = Button(text='종료', size_hint=(1, 0.5), font_name='youth')
-        Exit_Button.bind(on_press=self.Exit_Button_Clicked)
-        self.layout.add_widget(Exit_Button)
-
-        self.add_widget(self.layout)
-
-    def Back_To_First(self, instance):
-        self.app.Switch_To('first_screen')
-
-    def Exit_Button_Clicked(self, instance):
-        utils.Ending_Messages(self.app)        
+    def user_consented(self, instance):  # 수정된 부분
+        self.popup.dismiss()
+        self.get_user_location()
     
-"""       
 class MyScreenManager(ScreenManager):  # ScreenManager 추가
     def __init__(self, app, **kwargs):
         super(MyScreenManager, self).__init__(**kwargs)
@@ -235,4 +225,10 @@ class MyApp(App):
     def on_request_close(self, *args):
         utils.Ending_Messages(self.app)
         return True
+    
+    def on_start(self):
+        self.first_screen.show_consent_popup()  # 수정된 부분: 앱 시작 시 동의 팝업 표시
+        
+    def on_stop(self):
+        gps.stop()  # 수정된 부분: 앱 종료 시 GPS 중지
     
