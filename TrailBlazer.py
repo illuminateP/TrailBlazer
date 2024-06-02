@@ -115,3 +115,5 @@ if __name__ == "__main__":
     # 호출 시 자동 init     
     myapp = MyApp()
     myapp.run()
+    
+일단 지도 위에 노드 표시하는 거 부터 해보자 relativelayout으로

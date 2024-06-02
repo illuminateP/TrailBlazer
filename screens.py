@@ -19,7 +19,7 @@ class MyApp(App):
     
 3. utils.py -> 종료와 farewell 기능 불러오는 위젯이고 화면 구성 시 종료 , 취소 버튼과 screen 내에서 binding한다.
 4. fonts.py -> 폰트 불러오는 모듈 , first_screen __init__가 아니라 myAPP build 시로 가야 한다.
-5. strings.py -> 사용할 스트링 불러오는 모델 , fonts.py랑        묶어서 처리하도록 바꿔야 한다
+5. strings.py -> 사용할 스트링 불러오는 모듈, fonts.py와 합쳐서 string 처리하도록 바꿔야 한다
 6. map.py -> 지도 기능에 사용할 모듈이고 기능별로 모듈 분리할거면 first_screen 여기다 붙혀야 한다.
 
 
@@ -39,6 +39,7 @@ from kivy.uix.image import Image
 from kivy.core.window import Window
 from plyer import gps
 from kivy.garden.mapview import MapView
+
 
 import fonts
 import utils
@@ -93,13 +94,7 @@ class first_screen(Screen):
         self.app = app
         self.layout = BoxLayout(orientation='horizontal', spacing=10, padding=20)
         self.toolbar = BoxLayout(orientation='vertical', spacing=10, padding=20)
-        
-        # MapView for showing the user's location
-        self.map_view = MapView(zoom=11, size_hint=(1, 0.7))
-        self.layout.add_widget(self.map_view)
 
-        self.add_widget(self.layout)
-        
         # main_screen으로 돌아가는 버튼
         Back_Button = Button(text='뒤로 가기', size_hint=(1, 0.5), font_name='youth')
         Back_Button.bind(on_press=self.Back_To_Main)
@@ -133,20 +128,22 @@ class first_screen(Screen):
         
         self.layout.add_widget(self.toolbar)
         
+        
         # 맵뷰와 이미지 겹쳐 표시할 위젯
         self.map_layout = BoxLayout(orientation='horizontal', spacing=10, padding=20)
-        self.map_view = MapView(zoom=11, lat=37.7749, lon=-122.4194, size_hint=(1, 0.7))  # Example coordinates for San Francisco
+        self.map_view = MapView(zoom=11, size_hint=(1, 0.7))  # Example coordinates for San Francisco
         
+
+        
+        self.map_layout.add_widget(self.map_view)
+        self.layout.add_widget(self.map_layout)
+        self.add_widget(self.layout)
+        """
+        self.map_layout.add_widget(Image_Blueprint)    
         current_dir = os.path.dirname(__file__)
         image_path = os.path.join(current_dir, "assets", "blueprintmap.png")
         Image_Blueprint = Image(source=image_path)
-        self.map_layout.add_widget(self.map_view)
-        self.map_layout.add_widget(Image_Blueprint)
-
-        self.layout.add_widget(self.map_layout)
-        self.add_widget(self.layout)
-        
-    
+        """
     def Back_To_Main(self, instance):
         self.app.Switch_To('main_screen') 
 
@@ -182,12 +179,38 @@ class first_screen(Screen):
         content.add_widget(consent_button)
         content.add_widget(decline_button)
 
-        self.popup = Popup(title='위치 정보 제공 동의', content=content, size_hint=(0.8, 0.4))
+        self.popup = Popup(title='위치 정보 제공 동의', title_font='youth', content=content, size_hint=(0.8, 0.4))
         self.popup.open()
     
     def user_consented(self, instance):  # 수정된 부분
         self.popup.dismiss()
         self.get_user_location()
+        
+    def popup_dismiss(self, instance):
+        self.popup.dismiss()
+    
+    def get_user_location(self):
+        # Set GPS configuration and start
+        gps.configure(on_location=self.on_location, on_status=self.on_status)
+        gps.start(minTime=1000, minDistance=1)
+
+    def on_location(self, **kwargs):
+        lat = kwargs['lat']
+        lon = kwargs['lon']
+        self.show_user_location(lat, lon)
+
+    def on_status(self, stype, status):
+        if stype == 'provider-enabled':
+            print("GPS Enabled")
+        elif stype == 'provider-disabled':
+            print("GPS Disabled")
+        elif stype == 'provider-status':
+            print(f"GPS Status: {status}")
+
+    def show_user_location(self, lat, lon):
+        self.map_view.center_on(lat, lon)  # Center map on user's location
+        marker = MapMarker(lat=lat, lon=lon)
+        self.map_view.add_marker(marker)
     
 class MyScreenManager(ScreenManager):  # ScreenManager 추가
     def __init__(self, app, **kwargs):
@@ -227,8 +250,11 @@ class MyApp(App):
         return True
     
     def on_start(self):
+        print("!")
         self.first_screen.show_consent_popup()  # 수정된 부분: 앱 시작 시 동의 팝업 표시
         
+        
     def on_stop(self):
+        print("GPS! off!")
         gps.stop()  # 수정된 부분: 앱 종료 시 GPS 중지
     
