@@ -108,6 +108,7 @@ screen 명 작성 규칙 : snake
 
 # 구동부
 # init 기능 추가 필요
+import networkx as nx
 
 from screens import MyApp
 
@@ -116,4 +117,3 @@ if __name__ == "__main__":
     myapp = MyApp()
     myapp.run()
     
-일단 지도 위에 노드 표시하는 거 부터 해보자 relativelayout으로

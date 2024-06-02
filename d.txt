@@ -68,10 +68,11 @@ map.py 안에 그래프 처리하고 , screen.py안에서 screen 정의
    5. farewell에 메시지 추가 - AI generate
    5. 버튼이랑 레이아웃 싹 다듬고 Boxlayout가 아니라 relativelayout으로 해야 크로스 플랫폼 동작이 되겠죠?
    5. 설치 파일로 압축하는 모듈이 있을거고 
-   5. 크로스 플랫폼 테스트도 해야 하고
+   5. 크로스 플랫폼 테스트도 해야 하고 이때 import를 플랫폼 구분해서 임포트 모바일은 plyer 쓸거고 pc는 ip어쩌고 쓸거 api 필요한 거
    
    6. 다 하면 언어 변경 기능 이미지버튼으로 추가하고 strings.py , fonts.py에서 다중 언어팩 추가 하고
-      screen.py에서 boxlayout을 relative layout으로 전부 바꾸고 
+      screen.py에서 boxlayout을 relative layout으로 전부 바꾸고
+ 
 
    6. 이스터에그 두개 추가
       총장님 동상 클릭하면 뭐 할까
