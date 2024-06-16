@@ -108,7 +108,6 @@ screen 명 작성 규칙 : snake
 
 # 구동부
 # init 기능 추가 필요
-import networkx as nx
 
 from screens import MyApp
 

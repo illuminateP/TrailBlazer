@@ -37,8 +37,10 @@ from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.image import Image
 from kivy.core.window import Window
+from kivy.resources import resource_find
+from kivy.uix.scatter import Scatter
 from plyer import gps
-from kivy.garden.mapview import MapView , MapMarker
+from kivy.garden.mapview import MapView , MapMarker, MapSource
 from kivy.utils import platform
 
 from kivy.graphics import Color, Line, Ellipse
@@ -49,7 +51,6 @@ import fonts
 import utils
 import map
 
-import os
 
 # MyApp 외부 메서드 , 선언 규칙 : 스크린 = snake , 위젯 , 위젯 바인딩 메서드 = _pascal
 class main_screen(Screen):
@@ -134,18 +135,37 @@ class first_screen(Screen):
         self.toolbar.add_widget(Exit_Button)
         
         self.layout.add_widget(self.toolbar)
-        
-        
+
         # 맵뷰와 이미지 겹쳐 표시할 위젯
         self.map_layout = BoxLayout(orientation='horizontal', spacing=10, padding=10, size_hint=(0.7, 1))
-        self.map_view = MapView(zoom=11, size_hint=(1, 1))  # Example coordinates for San Francisco
+        self.map_view = MapView(zoom=11, size_hint=(1, 1))  
+        
+        # 커스텀 타일 소스 지정
+        tile_source_path = resource_find('assets/blueprint.png')
+        self.map_view.tile_source = tile_source_path
+
+        if tile_source_path:
+            # 커스텀 타일 소스 설정
+            custom_map_source = MapSource(url=tile_source_path, tile_size=256, image_ext='png', min_zoom=0, max_zoom=20)
+            self.map_view.map_source = custom_map_source
+
+
         
         self.map_layout.add_widget(self.map_view)
         self.layout.add_widget(self.map_layout)
         self.add_widget(self.layout)
 
+        # 고정 위치 마커 추가(임시)
+        self.add_fixed_marker()
 
-    def show_graph(self):
+    def add_fixed_marker(self):
+        # 예시 고정 좌표 (위도, 경도)
+        fixed_lat = 37.7749
+        fixed_lon = -122.4194
+        marker = MapMarker(lat=fixed_lat, lon=fixed_lon)
+        self.map_view.add_marker(marker)
+
+    def show_graph(self, *args):
         graph = map.graph_manager.get_graph()
         pos = nx.spring_layout(graph)  # 노드 레이아웃 계산
         for node, (x, y) in pos.items():
@@ -191,16 +211,23 @@ class first_screen(Screen):
     
     # 위치 정보 제공 동의 처리부 #
     
-    ## mobile 용 , mobile에서는 GPS 정보를 plyer를 사용해 가져온다. ##
-    def show_consent_popup_mobile(self):
+    
+    def show_consent_popup(self):
         content = BoxLayout(orientation='vertical', spacing=10, padding=20)
-        label = Label(text='TrailBlazer는 고객의 정보를 소중하게 생각합니다 , 제공된 위치 정보는 길찾기 기능 사용 시에만 사용되며 , 앱 종료시 지체 없이 파기합니다. 위치 정보를 제공하시겠습니까?', font_name='youth')
-        label.bind(size=lambda s, w: s.setter('text_size')(s, (w[0], None)))
+        label = Label(text='TrailBlazer는 고객의 정보를 소중하게 생각합니다. 제공된 위치 정보는 길찾기 기능 사용 시에만 사용되며, 앱 종료 시 지체 없이 파기합니다. 위치 정보를 제공하시겠습니까?', font_name='youth')
         consent_button = Button(text='동의', font_name='youth')
         decline_button = Button(text='거절', font_name='youth')
 
-        consent_button.bind(on_press=self.user_consented)
-        decline_button.bind(on_press=self.popup_dismiss)
+
+        if platform in ['win', 'linux', 'macosx']:
+            consent_button.bind(on_press=self.user_consented_pc)
+        elif platform in ['android', 'ios']:
+            consent_button.bind(on_press=self.user_consented_mobile)
+        else:
+            print("플랫폼 감지 에러 !")
+            self.popup.dismiss()
+            
+        decline_button.bind(on_press=lambda instance: self.popup.dismiss())    
 
         content.add_widget(label)
         content.add_widget(consent_button)
@@ -209,65 +236,12 @@ class first_screen(Screen):
         self.popup = Popup(title='위치 정보 제공 동의', title_font='youth', content=content, size_hint=(0.8, 0.4))
         self.popup.open()
     
-    def user_consented_mobile(self, instance): 
-        self.popup.dismiss()
-        self.get_user_location_mobile()
-        # GPS 객체
-        global GPS 
-        GPS = gps()
-        
-    def popup_dismiss(self, instance):
-        self.popup.dismiss()
-    
-    def get_user_location(self):
-        GPS.configure(on_location=self.on_location, on_status=self.on_status)
-        GPS.start(minTime=1000, minDistance=1)
+        ## PC 용 , PC에서는 geoip를 사용하여 GPS 정보를 대략적으로 가져온다
 
-    def on_location_mobile(self, **kwargs):
-        lat = kwargs['lat']
-        lon = kwargs['lon']
-        self.show_user_location(lat, lon)
-
-    def on_status_mobile(self, stype, status):
-        if stype == 'provider-enabled':
-            print("GPS Enabled")
-        elif stype == 'provider-disabled':
-            print("GPS Disabled")
-        elif stype == 'provider-status':
-            print(f"GPS Status: {status}")
-
-    def show_user_location(self, lat, lon):
-        self.map_view.center_on(lat, lon)  # Center map on user's location
-        marker = MapMarker(lat=lat, lon=lon)
-        self.map_view.add_marker(marker)
-
-
-    ## PC 용 , PC에서는 geoip를 사용하여 GPS 정보를 대략적으로 가져온다
-
-    def show_consent_popup_pc(self):
-        content = BoxLayout(orientation='vertical', spacing=10, padding=20)
-        label = Label(text='TrailBlazer는 고객의 정보를 소중하게 생각합니다 , 제공된 위치 정보는 길찾기 기능 사용 시에만 사용되며 , 앱 종료시 지체 없이 파기합니다. 위치 정보를 제공하지 않으셔도 사용이 가능하지만 , 현재 위치 기반 서비스는 제한됩니다. 위치 정보를 제공하시겠습니까?', font_name='youth')
-        label.bind(size=lambda s, w: s.setter('text_size')(s, (w[0], None)))
-        consent_button = Button(text='동의', font_name='youth')
-        decline_button = Button(text='거절', font_name='youth')
-
-        consent_button.bind(on_press=self.user_consented_pc)
-        decline_button.bind(on_press=self.popup_dismiss)
-
-        content.add_widget(label)
-        content.add_widget(consent_button)
-        content.add_widget(decline_button)
-
-        self.popup = Popup(title='위치 정보 제공 동의', title_font='youth', content=content, size_hint=(0.8, 0.4))
-        self.popup.open()
-    
     def user_consented_pc(self, instance): 
         self.popup.dismiss()
         self.get_user_location_pc()
         
-    def popup_dismiss(self, instance):
-        self.popup.dismiss()
-    
     def get_user_location_pc(self):
         print("ip address for pc user")
         """
@@ -281,7 +255,7 @@ class first_screen(Screen):
     def on_location_pc(self, **kwargs):
         lat = kwargs['lat']
         lon = kwargs['lon']
-        self.show_user_location(lat, lon)
+        self.show_user_location_pc(lat, lon)
 
     def on_status_pc(self, stype, status):
         if stype == 'provider-enabled':
@@ -291,27 +265,26 @@ class first_screen(Screen):
         elif stype == 'provider-status':
             print(f"GPS Status: {status}")
 
-    def show_user_location(self, lat, lon):
-        self.map_view.center_on(lat, lon)  # Center map on user's location
+    def show_user_location_pc(self, lat, lon):
+        self.map_view.center_on(lat, lon)  
         marker = MapMarker(lat=lat, lon=lon)
         self.map_view.add_marker(marker)
-    
+
     def user_consented_pc(self, instance): 
         self.popup.dismiss()
-        self.get_user_location()
+        self.get_user_location_pc()
         
-    def popup_dismiss(self, instance):
-        self.popup.dismiss()
     
     def get_user_location_pc(self):
+        print("get_user_loaction_pc !")
         pass
 
-    def on_location(self, **kwargs):
+    def on_location_pc(self, **kwargs):
         lat = kwargs['lat']
         lon = kwargs['lon']
-        self.show_user_location(lat, lon)
+        self.show_user_location_pc(lat, lon)
 
-    def on_status(self, stype, status):
+    def on_status_pc(self, stype, status):
         if stype == 'provider-enabled':
             print("GPS Enabled")
         elif stype == 'provider-disabled':
@@ -319,10 +292,44 @@ class first_screen(Screen):
         elif stype == 'provider-status':
             print(f"GPS Status: {status}")
 
-    def show_user_location(self, lat, lon):
+    def show_user_location_pc(self, lat, lon):
         self.map_view.center_on(lat, lon)  # Center map on user's location
         marker = MapMarker(lat=lat, lon=lon)
         self.map_view.add_marker(marker)
+
+    # 모바일 용 , 모바일에서는 plyer를 사용해 사용자 위치 , _mobile
+    def user_consented_mobile(self, instance):
+        self.popup.dismiss()
+        try:
+            global GPS
+            GPS = gps()
+            self.get_user_location_mobile()
+        except Exception as e:
+            print(f"Error initializing GPS: {e}")
+    
+    def get_user_location_mobile(self):
+        GPS.configure(on_location=self.on_location_mobile, on_status=self.on_status_mobile)
+        GPS.start(minTime=1000, minDistance=1)
+
+    def on_location_mobile(self, **kwargs):
+        lat = kwargs['lat']
+        lon = kwargs['lon']
+        self.show_user_location_mobile(lat, lon)
+
+    def on_status_mobile(self, stype, status):
+        if stype == 'provider-enabled':
+            print("GPS Enabled")
+        elif stype == 'provider-disabled':
+            print("GPS Disabled")
+        elif stype == 'provider-status':
+            print(f"GPS Status: {status}")
+
+    def show_user_location_mobile(self, lat, lon):
+        self.map_view.center_on(lat, lon)  # Center map on user's location
+        marker = MapMarker(lat=lat, lon=lon)
+        self.map_view.add_marker(marker)
+
+
 
     
 class MyScreenManager(ScreenManager):  # ScreenManager 추가
@@ -367,15 +374,18 @@ class MyApp(App):
         return True
     
     def on_start(self):
-        print("!")
         # 앱 시작 시 platform 감지해 platform에 맞는 방법으로 사용자의 GPS 정보를 가져옴
         if platform == 'android' or platform == 'ios':
-            self.first_screen.show_consent_popup_mobile()
+            self.first_screen.show_consent_popup()
         else:
-            self.first_screen.show_consent_popup_pc()
+            self.first_screen.show_consent_popup()
         
         
     def on_stop(self):
         print("GPS! off!")
-        GPS.stop()  # 앱 종료 시 GPS 종료 , 플랫폼 종속성 확인 필요
+        try:
+            if platform in ['android', 'ios']:
+                GPS.stop()
+        except Exception as e:
+            print(f"Error stopping GPS: {e}")
     
