@@ -1,3 +1,4 @@
 !pip install kivy
 !pip install kivy-garden
-!pip install plyer
+
+!pip install plyer(mobile)
