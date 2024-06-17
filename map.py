@@ -64,7 +64,6 @@ class Graph_Manager:
                     break
 
         fig.canvas.mpl_connect('button_press_event', on_click)
-        plt.xlabel('장르 개수',fontproperties=font_prop)
         plt.show()
 
     def show_facilities(self, ax, x, y, node_name, facilities):
@@ -135,7 +134,7 @@ def create_graph():
 
     return graph_manager
 
-# 모듈 테스트용, 실행은 TrailBlazer.py에서 !
+# 모듈 테스트용, 실행은 TrailBlazer.py에서!
 """
 if __name__ == "__main__":
     graph_manager = create_graph()

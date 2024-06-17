@@ -39,7 +39,6 @@ from kivy.uix.image import Image
 from kivy.core.window import Window
 
 from kivy.uix.scatter import Scatter
-from plyer import gps
 from kivy.garden.mapview import MapView , MapMarker, MapSource
 from kivy.utils import platform
 
@@ -89,6 +88,50 @@ class main_screen(Screen):
         
     def Exit_Button_Clicked(self, instance):
         utils.Ending_Messages(self.app)
+
+    # 위치 정보 제공 동의 처리하는 팝업#
+    def show_consent_popup(self):
+        content = BoxLayout(orientation='vertical', spacing=10, padding=20)
+        label = Label(text='TrailBlazer는 고객의 정보를 소중하게 생각합니다. 제공된 위치 정보는 길찾기 기능 사용 시에만 사용되며, 앱 종료 시 지체 없이 파기합니다. 위치 정보를 제공하시겠습니까?', font_name='youth')
+        consent_button = Button(text='동의', font_name='youth')
+        decline_button = Button(text='거절', font_name='youth')
+
+
+        if platform in ['win', 'linux', 'macosx']:
+            consent_button.bind(on_press=self.user_consented_pc)
+        elif platform in ['android', 'ios']:
+            consent_button.bind(on_press=self.user_consented_mobile)
+        else:
+            print("플랫폼 감지 에러 !")
+            self.popup.dismiss()
+            
+        decline_button.bind(on_press=lambda instance: self.popup.dismiss())    
+
+        content.add_widget(label)
+        content.add_widget(consent_button)
+        content.add_widget(decline_button)
+
+        self.popup = Popup(title='위치 정보 제공 동의', title_font='youth', content=content, size_hint=(0.8, 0.4))
+        self.popup.open()
+
+    ## PC 용 , PC환경에서는 gachon_free_wifi의 ip 주소를 사용하여 GPS 정보를 대략적으로 가져오고, 다른 무선 네트워크에 연결중일 경우 geoip로 사용자의 위치를 대략적으로 사용한다. 추후 추가 예정.
+    def user_consented_pc(self, instance): 
+        self.popup.dismiss()
+        #self.get_user_location_pc()
+        print("user consented for pc!")
+        
+    # 모바일 용 , 모바일에서는 plyer를 사용해 내장 gps를 제어해 사용자 위치를 대략적으로 가져온다. 추후 추가 예정.
+    def user_consented_mobile(self, instance):
+        self.popup.dismiss()
+        print("user consented for mobile!")
+        """
+        try:
+            global GPS
+            GPS = gps()
+            self.get_user_location_mobile()
+        except Exception as e:
+            print(f"Error initializing GPS: {e}")
+        """
     
         
         
@@ -204,130 +247,7 @@ class first_screen(Screen):
           
     def Fifth_Functional_Button_Clicked(self,instance):
         print("Fifth Functional Button clicked!")
-        
-
     
-    # 위치 정보 제공 동의 처리부 #
-    
-    
-    def show_consent_popup(self):
-        content = BoxLayout(orientation='vertical', spacing=10, padding=20)
-        label = Label(text='TrailBlazer는 고객의 정보를 소중하게 생각합니다. 제공된 위치 정보는 길찾기 기능 사용 시에만 사용되며, 앱 종료 시 지체 없이 파기합니다. 위치 정보를 제공하시겠습니까?', font_name='youth')
-        consent_button = Button(text='동의', font_name='youth')
-        decline_button = Button(text='거절', font_name='youth')
-
-
-        if platform in ['win', 'linux', 'macosx']:
-            consent_button.bind(on_press=self.user_consented_pc)
-        elif platform in ['android', 'ios']:
-            consent_button.bind(on_press=self.user_consented_mobile)
-        else:
-            print("플랫폼 감지 에러 !")
-            self.popup.dismiss()
-            
-        decline_button.bind(on_press=lambda instance: self.popup.dismiss())    
-
-        content.add_widget(label)
-        content.add_widget(consent_button)
-        content.add_widget(decline_button)
-
-        self.popup = Popup(title='위치 정보 제공 동의', title_font='youth', content=content, size_hint=(0.8, 0.4))
-        self.popup.open()
-    
-        ## PC 용 , PC에서는 geoip를 사용하여 GPS 정보를 대략적으로 가져온다
-
-    def user_consented_pc(self, instance): 
-        self.popup.dismiss()
-        self.get_user_location_pc()
-        
-    def get_user_location_pc(self):
-        print("ip address for pc user")
-        """
-        GPS = Nominatim(user_agent="geoapiExercises")
-        location = geolocator.geocode("San Francisco")
-        lat = location.latitude
-        lon = location.longitude
-        self.show_user_location(lat, lon)
-        """
-
-    def on_location_pc(self, **kwargs):
-        lat = kwargs['lat']
-        lon = kwargs['lon']
-        self.show_user_location_pc(lat, lon)
-
-    def on_status_pc(self, stype, status):
-        if stype == 'provider-enabled':
-            print("GPS Enabled")
-        elif stype == 'provider-disabled':
-            print("GPS Disabled")
-        elif stype == 'provider-status':
-            print(f"GPS Status: {status}")
-
-    def show_user_location_pc(self, lat, lon):
-        self.map_view.center_on(lat, lon)  
-        marker = MapMarker(lat=lat, lon=lon)
-        self.map_view.add_marker(marker)
-
-    def user_consented_pc(self, instance): 
-        self.popup.dismiss()
-        self.get_user_location_pc()
-        
-    
-    def get_user_location_pc(self):
-        print("get_user_loaction_pc !")
-        pass
-
-    def on_location_pc(self, **kwargs):
-        lat = kwargs['lat']
-        lon = kwargs['lon']
-        self.show_user_location_pc(lat, lon)
-
-    def on_status_pc(self, stype, status):
-        if stype == 'provider-enabled':
-            print("GPS Enabled")
-        elif stype == 'provider-disabled':
-            print("GPS Disabled")
-        elif stype == 'provider-status':
-            print(f"GPS Status: {status}")
-
-    def show_user_location_pc(self, lat, lon):
-        self.map_view.center_on(lat, lon)  # Center map on user's location
-        marker = MapMarker(lat=lat, lon=lon)
-        self.map_view.add_marker(marker)
-
-    # 모바일 용 , 모바일에서는 plyer를 사용해 사용자 위치 , _mobile
-    def user_consented_mobile(self, instance):
-        self.popup.dismiss()
-        try:
-            global GPS
-            GPS = gps()
-            self.get_user_location_mobile()
-        except Exception as e:
-            print(f"Error initializing GPS: {e}")
-    
-    def get_user_location_mobile(self):
-        GPS.configure(on_location=self.on_location_mobile, on_status=self.on_status_mobile)
-        GPS.start(minTime=1000, minDistance=1)
-
-    def on_location_mobile(self, **kwargs):
-        lat = kwargs['lat']
-        lon = kwargs['lon']
-        self.show_user_location_mobile(lat, lon)
-
-    def on_status_mobile(self, stype, status):
-        if stype == 'provider-enabled':
-            print("GPS Enabled")
-        elif stype == 'provider-disabled':
-            print("GPS Disabled")
-        elif stype == 'provider-status':
-            print(f"GPS Status: {status}")
-
-    def show_user_location_mobile(self, lat, lon):
-        self.map_view.center_on(lat, lon)  # Center map on user's location
-        marker = MapMarker(lat=lat, lon=lon)
-        self.map_view.add_marker(marker)
-
-
 
     
 class MyScreenManager(ScreenManager):  # ScreenManager 추가
@@ -354,8 +274,6 @@ class MyApp(App):
         Window.bind(on_request_close=self.on_request_close)
         return self.screen_manager
     
-
-
     def Switch_To(self, screen_name):
         self.screen_manager.current = screen_name
 
@@ -372,18 +290,24 @@ class MyApp(App):
         return True
     
     def on_start(self):
-        # 앱 시작 시 platform 감지해 platform에 맞는 방법으로 사용자의 GPS 정보를 가져옴
+        # 앱 시작 시 platform 감지해 platform에 맞는 방법으로 사용자의 GPS 정보 제공 동의를 받는다.
+        # 모바일 환경
         if platform == 'android' or platform == 'ios':
-            self.first_screen.show_consent_popup()
+            #from plyer import gps
+            self.main_screen.show_consent_popup()
+        # pc 환경 
         else:
-            self.first_screen.show_consent_popup()
+            #from geopy.geocoders import Nominatim
+            self.main_screen.show_consent_popup()
         
         
     def on_stop(self):
         print("GPS! off!")
+        """
         try:
             if platform in ['android', 'ios']:
                 GPS.stop()
         except Exception as e:
             print(f"Error stopping GPS: {e}")
+        """
     
