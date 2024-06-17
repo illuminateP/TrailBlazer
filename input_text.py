@@ -1,6 +1,6 @@
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
-from kivy.uix.label import Label
+from kivy.uix.button import Button
 from kivy.properties import ObjectProperty
 import difflib
 import map
@@ -13,7 +13,7 @@ class InputForm(BoxLayout):
         super(InputForm, self).__init__(**kwargs)
         self.orientation = 'vertical'
         self.text_input = TextInput(size_hint=(1, None), height=30)
-        self.hint_label = Label(size_hint=(1, None), height=30)
+        self.hint_label = TextInput(size_hint=(1, None), height=30, readonly=True)
         self.text_input.bind(text=self.update_hint)
         self.add_widget(self.text_input)
         self.add_widget(self.hint_label)

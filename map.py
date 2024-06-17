@@ -1,21 +1,18 @@
 import networkx as nx
 import matplotlib.pyplot as plt
-from matplotlib import font_manager
+from matplotlib import font_manager, rc
 import os
 
-# 현재 스크립트의 디렉토리 경로
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 # 한글 폰트 설정
-font_path = 'C:\\Temp\\Youth.ttf'
+font_path = os.path.join(current_dir, 'fonts', 'Youth.ttf')  # Youth.ttf 폰트 경로
 if not os.path.exists(font_path):
     raise FileNotFoundError(f"Font file not found: {font_path}")
 
-# 폰트를 설치하고 폰트 캐시를 업데이트합니다.
-font_manager.fontManager.addfont(font_path)
-
-# 폰트 프로퍼티 설정
 font_prop = font_manager.FontProperties(fname=font_path)
+plt.rc('font', family=font_prop.get_name())
+
 
 # matplotlib의 전역 폰트 설정
 print(font_prop.get_name())
@@ -138,7 +135,9 @@ def create_graph():
 
     return graph_manager
 
-# 모듈 테스트
+# 모듈 테스트용, 실행은 TrailBlazer.py에서 !
+"""
 if __name__ == "__main__":
     graph_manager = create_graph()
     graph_manager.draw_graph()
+"""

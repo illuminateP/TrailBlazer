@@ -46,11 +46,14 @@ from kivy.utils import platform
 from kivy.graphics import Color, Line, Ellipse
 
 import networkx as nx
+from kivy.resources import resource_find
+from kivy.properties import ObjectProperty
+import difflib
 
 import fonts
 import utils
 import map
-
+import input_text
 
 # MyApp 외부 메서드 , 선언 규칙 : 스크린 = snake , 위젯 , 위젯 바인딩 메서드 = _pascal
 class main_screen(Screen):
@@ -93,30 +96,42 @@ class main_screen(Screen):
         
         
 
-# 길찾기 제공하는 화면 
+    # 길찾기 제공하는 화면 
 class first_screen(Screen):
     def __init__(self, app, **kwargs):
         super(first_screen, self).__init__(**kwargs)
 
         self.app = app
-        self.layout = BoxLayout(orientation='horizontal', spacing=10, padding=10)
+        self.layout =  BoxLayout(orientation='vertical', spacing=0, padding=0)
+        self.sublayout = BoxLayout(orientation='horizontal', spacing=10, padding=10)
+        
+        self.input_form_top = input_text.InputForm()
+        self.input_form_bottom = input_text.InputForm()
+        
+        self.layout.add_widget(self.input_form_top)
+        self.layout.add_widget(self.input_form_bottom)
+        
+        search_button = Button(text='검색', size_hint=(1, None), height=30, font_name='youth')
+        search_button.bind(on_press=self.on_search)
+        
+        self.layout.add_widget(search_button)
+        
         self.toolbar = BoxLayout(orientation='vertical', spacing=10, padding=10, size_hint=(0.3, 1))
-
 
         # main_screen으로 돌아가는 버튼
         Back_Button = Button(text='뒤로 가기', size_hint=(1, 1), font_name='youth')
         Back_Button.bind(on_press=self.Back_To_Main)
         self.toolbar.add_widget(Back_Button)
-        
+            
         First_Functional_Button = Button(text='첫 번째 기능', size_hint=(1, 1), font_name='youth')
-        First_Functional_Button.bind(on_press=self.show_graph)
+        First_Functional_Button.bind(on_press=self.First_Functional_Button_Clicked)
         self.toolbar.add_widget(First_Functional_Button)
-        
+            
         Second_Functional_Button = Button(text='두 번째 기능',size_hint=(1, 1), font_name='youth')
         Second_Functional_Button.bind(on_press=self.Second_Functional_Button_Clicked)
         self.toolbar.add_widget(Second_Functional_Button)
-        
-        
+            
+            
         Third_Functional_Button = Button(text='세 번째 기능', size_hint=(1, 1), font_name='youth')
         Third_Functional_Button.bind(on_press=self.Third_Functional_Button_Clicked)
         self.toolbar.add_widget(Third_Functional_Button)
@@ -128,18 +143,18 @@ class first_screen(Screen):
         Fifth_Functional_Button = Button(text='다섯 번째 기능', size_hint=(1, 1), font_name='youth')
         Fifth_Functional_Button.bind(on_press=self.Fifth_Functional_Button_Clicked)
         self.toolbar.add_widget(Fifth_Functional_Button)
-        
+            
         # 닫기 버튼을 눌렀을 때 종료창 호출
         Exit_Button = Button(text='종료', size_hint=(1, 1), font_name='youth')
         Exit_Button.bind(on_press=self.Exit_Button_Clicked)
         self.toolbar.add_widget(Exit_Button)
-        
-        self.layout.add_widget(self.toolbar)
+            
+        self.sublayout.add_widget(self.toolbar)
 
         # 맵뷰와 이미지 겹쳐 표시할 위젯
         self.map_layout = BoxLayout(orientation='horizontal', spacing=10, padding=10, size_hint=(0.7, 1))
         self.map_view = MapView(zoom=11, size_hint=(1, 1))  
-        
+            
         # 커스텀 타일 소스 지정
         tile_source_path = resource_find('assets/blueprint.png')
         self.map_view.tile_source = tile_source_path
@@ -150,9 +165,10 @@ class first_screen(Screen):
             self.map_view.map_source = custom_map_source
 
 
-        
+            
         self.map_layout.add_widget(self.map_view)
-        self.layout.add_widget(self.map_layout)
+        self.sublayout.add_widget(self.map_layout)
+        self.layout.add_widget(self.sublayout)
         self.add_widget(self.layout)
 
         # 고정 위치 마커 추가(임시)
@@ -165,23 +181,6 @@ class first_screen(Screen):
         marker = MapMarker(lat=fixed_lat, lon=fixed_lon)
         self.map_view.add_marker(marker)
 
-    def show_graph(self, *args):
-        graph = map.graph_manager.get_graph()
-        pos = nx.spring_layout(graph)  # 노드 레이아웃 계산
-        for node, (x, y) in pos.items():
-            x, y = self.to_widget(x, y)
-            with self.map_view.canvas:
-                Color(1, 0, 0)
-                Ellipse(pos=(x, y), size=(10, 10))
-            for neighbor in graph.neighbors(node):
-                neighbor_x, neighbor_y = self.to_widget(*pos[neighbor])
-                Color(0, 1, 0)
-                Line(points=[x + 5, y + 5, neighbor_x + 5, neighbor_y + 5], width=1.5)
-    
-    # first_screen이 완전히 그려졌을 때 그래프 표시
-    def on_enter(self, *args):
-        self.show_graph()  
-
     def to_widget(self, x, y):
         return (self.map_view.x + x * self.map_view.width, self.map_view.y + y * self.map_view.height)
 
@@ -189,7 +188,6 @@ class first_screen(Screen):
     def Back_To_Main(self, instance):
         self.app.Switch_To('main_screen') 
 
-        
     def Exit_Button_Clicked(self, instance):
         utils.Ending_Messages(self.app)
     
@@ -207,6 +205,10 @@ class first_screen(Screen):
           
     def Fifth_Functional_Button_Clicked(self,instance):
         print("Fifth Functional Button clicked!")
+        
+    # 검색 버튼 클릭 시
+    def on_search(self,instance):
+        print("search button clicked! further make handler function !")
 
     
     # 위치 정보 제공 동의 처리부 #
