@@ -37,18 +37,15 @@ from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.image import Image
 from kivy.core.window import Window
-from kivy.resources import resource_find
+
 from kivy.uix.scatter import Scatter
 from plyer import gps
 from kivy.garden.mapview import MapView , MapMarker, MapSource
 from kivy.utils import platform
 
-from kivy.graphics import Color, Line, Ellipse
 
-import networkx as nx
 from kivy.resources import resource_find
-from kivy.properties import ObjectProperty
-import difflib
+
 
 import fonts
 import utils
@@ -98,18 +95,18 @@ class main_screen(Screen):
 
     # 길찾기 제공하는 화면 
 class first_screen(Screen):
+
     def __init__(self, app, **kwargs):
         super(first_screen, self).__init__(**kwargs)
 
         self.app = app
         self.layout =  BoxLayout(orientation='vertical', spacing=0, padding=0)
         self.sublayout = BoxLayout(orientation='horizontal', spacing=10, padding=10)
-        
-        self.input_form_top = input_text.InputForm()
-        self.input_form_bottom = input_text.InputForm()
-        
-        self.layout.add_widget(self.input_form_top)
-        self.layout.add_widget(self.input_form_bottom)
+
+
+        # InputForm 생성 시 핸들러 함수 input_text.py에서 바인딩.
+        self.input_form_top = input_text.InputForm(self.layout, self.on_search)
+        self.input_form_bottom = input_text.InputForm(self.layout, self.on_search)
         
         search_button = Button(text='검색', size_hint=(1, None), height=30, font_name='youth')
         search_button.bind(on_press=self.on_search)
@@ -164,8 +161,6 @@ class first_screen(Screen):
             custom_map_source = MapSource(url=tile_source_path, tile_size=256, image_ext='png', min_zoom=0, max_zoom=20)
             self.map_view.map_source = custom_map_source
 
-
-            
         self.map_layout.add_widget(self.map_view)
         self.sublayout.add_widget(self.map_layout)
         self.layout.add_widget(self.sublayout)
@@ -173,6 +168,10 @@ class first_screen(Screen):
 
         # 고정 위치 마커 추가(임시)
         self.add_fixed_marker()
+    
+    def on_search(self, instance):
+        print("search button clicked! further make handler function !")
+
 
     def add_fixed_marker(self):
         # 예시 고정 좌표 (위도, 경도)
@@ -206,9 +205,6 @@ class first_screen(Screen):
     def Fifth_Functional_Button_Clicked(self,instance):
         print("Fifth Functional Button clicked!")
         
-    # 검색 버튼 클릭 시
-    def on_search(self,instance):
-        print("search button clicked! further make handler function !")
 
     
     # 위치 정보 제공 동의 처리부 #
