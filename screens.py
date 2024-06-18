@@ -1,15 +1,22 @@
 """
 # !rule #
-1 . TrailBlazer.py -> 구동부
-2. screens.py -> 화면 내 로직과 위젯 관리 , 위젯부와 로직부 분리할 지 생각 중이다. 현재는 스크린 내 로직도 작성되어 있다.
-screen 명 작성 규칙 : snake 
+
+1. TrailBlazer.py -> 구동부
+2. screens.py -> 화면 내 로직과 위젯 관리. 
+3. utils.py -> 닫기 버튼이나 'x' 버튼 눌렀을 때 출력할 토스트 메시지 정의
+3. inputs.py -> first_screen에서 사용할 Input 창 정의, 바인딩 시 핸들러 함수 parameter로 넘겨주어야 한다.
+4. map.py -> Scatter 위에 겹쳐 띄울 그래프 관리, 내부 노드 정의
+5. fonts.py -> 사용할 폰트 정의.
+6. strings.py -> 언어 지원에 사용할 거고 모든 출력문 string으로 정의해서 관리할 예정.
+
+# screen 명 작성 규칙 : snake 
 ★ screen 추가 시 1) 이름이 소문자인지 , snake 규칙을 따르는지 확인하고
 2)
 class first_screen(Screen):
     def __init__(self, app, **kwargs):
         super(first_screen, self).__init__(**kwargs)
         self.app = app
-    으로 init시 app parameter passing 확인하며
+    으로 init시 parameter passing 확인하며
 3)
 class MyApp(App):
     def build(self):
@@ -17,15 +24,8 @@ class MyApp(App):
         self.screen_manager.add_widget(self.first_screen)
     로 screen_mananger에 스크린 등록하고 있는지 확인!  
     
-3. utils.py -> 종료와 farewell 기능 불러오는 위젯이고 화면 구성 시 종료 , 취소 버튼과 screen 내에서 binding한다.
-4. fonts.py -> 폰트 불러오는 모듈 , first_screen __init__가 아니라 myAPP build 시로 가야 한다.
-5. strings.py -> 사용할 스트링 불러오는 모듈, fonts.py와 합쳐서 string 처리하도록 바꿔야 한다
-6. map.py -> 지도 기능에 사용할 모듈이고 기능별로 모듈 분리할거면 first_screen 여기다 붙혀야 한다.
 
-
-7. 위젯에 한국어 등록할 때는 전부 font_name='youth' 있어야한다. 이는 비 라틴언어 모두에 해당하며 , 영어 제외하면 폰트 전부 적어줘야 한다.
-8. 기능별로 모듈 분리할지 , 화면별로 분류해서 Screen.py에 배치할 지 생각 , 내부 로직부분과 분리하는 게 좋을 것 같은데
-
+##. 위젯에 한국어 등록할 때는 전부 font_name='youth' 있어야한다. 이는 비 라틴언어 모두에 해당하며 , 영어 제외하면 폰트 전부 적어줘야 한다.
 """
 
 from kivy.app import App
@@ -39,7 +39,6 @@ from kivy.uix.image import Image
 from kivy.core.window import Window
 
 from kivy.uix.scatter import Scatter
-from kivy.garden.mapview import MapView , MapMarker, MapSource
 from kivy.utils import platform
 
 
@@ -193,39 +192,20 @@ class first_screen(Screen):
 
         # 맵뷰와 이미지 겹쳐 표시할 위젯
         self.map_layout = BoxLayout(orientation='horizontal', spacing=10, padding=10, size_hint=(0.7, 1))
-        self.map_view = MapView(zoom=11, size_hint=(1, 1))  
+        self.Scatter_view = Scatter(do_scale=True, do_rotation=False)
+        self.Image_view = Image(source = resource_find('assets/blueprint_renew.png'))
             
-        # 커스텀 타일 소스 지정
-        tile_source_path = resource_find('assets/blueprint.png')
-        self.map_view.tile_source = tile_source_path
+        self.Scatter_view.add_widget(self.Image_view)    
+        self.map_layout.add_widget(self.Scatter_view)
 
-        if tile_source_path:
-            # 커스텀 타일 소스 설정
-            custom_map_source = MapSource(url=tile_source_path, tile_size=256, image_ext='png', min_zoom=0, max_zoom=20)
-            self.map_view.map_source = custom_map_source
-
-        self.map_layout.add_widget(self.map_view)
         self.sublayout.add_widget(self.map_layout)
         self.layout.add_widget(self.sublayout)
+
         self.add_widget(self.layout)
 
-        # 고정 위치 마커 추가(임시)
-        self.add_fixed_marker()
     
     def on_search(self, instance):
         print("search button clicked! further make handler function !")
-
-
-    def add_fixed_marker(self):
-        # 예시 고정 좌표 (위도, 경도)
-        fixed_lat = 37.7749
-        fixed_lon = -122.4194
-        marker = MapMarker(lat=fixed_lat, lon=fixed_lon)
-        self.map_view.add_marker(marker)
-
-    def to_widget(self, x, y):
-        return (self.map_view.x + x * self.map_view.width, self.map_view.y + y * self.map_view.height)
-
 
     def Back_To_Main(self, instance):
         self.app.Switch_To('main_screen') 
