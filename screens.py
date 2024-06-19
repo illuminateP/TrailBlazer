@@ -37,8 +37,8 @@ from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.image import Image
 from kivy.core.window import Window
+from kivy.uix.floatlayout import FloatLayout
 
-from kivy.uix.scatter import Scatter
 from kivy.utils import platform
 
 
@@ -142,9 +142,8 @@ class first_screen(Screen):
         super(first_screen, self).__init__(**kwargs)
 
         self.app = app
-        self.layout =  BoxLayout(orientation='vertical', spacing=0, padding=0)
-        self.sublayout = BoxLayout(orientation='horizontal', spacing=10, padding=10)
-
+        self.layout = BoxLayout(orientation='vertical', spacing=0, padding=0)
+        self.sublayout = BoxLayout(orientation='horizontal', spacing=10, padding=10, size_hint=(1, 1))
 
         # InputForm 생성 시 핸들러 함수 input_text.py에서 바인딩.
         self.input_form_top = input_text.InputForm(self.layout, self.on_search)
@@ -166,10 +165,9 @@ class first_screen(Screen):
         First_Functional_Button.bind(on_press=self.First_Functional_Button_Clicked)
         self.toolbar.add_widget(First_Functional_Button)
             
-        Second_Functional_Button = Button(text='두 번째 기능',size_hint=(1, 1), font_name='youth')
+        Second_Functional_Button = Button(text='두 번째 기능', size_hint=(1, 1), font_name='youth')
         Second_Functional_Button.bind(on_press=self.Second_Functional_Button_Clicked)
         self.toolbar.add_widget(Second_Functional_Button)
-            
             
         Third_Functional_Button = Button(text='세 번째 기능', size_hint=(1, 1), font_name='youth')
         Third_Functional_Button.bind(on_press=self.Third_Functional_Button_Clicked)
@@ -191,19 +189,21 @@ class first_screen(Screen):
         self.sublayout.add_widget(self.toolbar)
 
         # 맵뷰와 이미지 겹쳐 표시할 위젯
-        self.map_layout = BoxLayout(orientation='horizontal', spacing=10, padding=10, size_hint=(0.7, 1))
-        self.Scatter_view = Scatter(do_scale=True, do_rotation=False)
-        self.Image_view = Image(source = resource_find('assets/blueprint_renew.png'))
-            
-        self.Scatter_view.add_widget(self.Image_view)    
-        self.map_layout.add_widget(self.Scatter_view)
+        self.float_layout = FloatLayout(size_hint=(1, 1))
+        self.Image_view = Image(source=resource_find('assets/map_base.jpg'), size_hint=(1, 1), allow_stretch=True, keep_ratio=False, pos_hint={'x': 0, 'y': 0})
+        # toolbar와 맞추기 위해 padding 속성을 부여할 컨테이너
+        self.image_container = BoxLayout(padding=10, size_hint=(0.7, 1))  # BoxLayout을 사용하여 padding 적용
+        
+        self.float_layout.add_widget(self.Image_view)
 
-        self.sublayout.add_widget(self.map_layout)
+        self.image_container.add_widget(self.float_layout)
+        self.sublayout.add_widget(self.image_container)
+
         self.layout.add_widget(self.sublayout)
 
         self.add_widget(self.layout)
 
-    
+
     def on_search(self, instance):
         print("search button clicked! further make handler function !")
 
@@ -214,7 +214,7 @@ class first_screen(Screen):
         utils.Ending_Messages(self.app)
     
     def First_Functional_Button_Clicked(self,instance):
-        print("First Functinal Button clicked!")
+        print("First Functional Button clicked!")
         
     def Second_Functional_Button_Clicked(self,instance):
         print("Second Functional Button clicked!")
@@ -227,7 +227,7 @@ class first_screen(Screen):
           
     def Fifth_Functional_Button_Clicked(self,instance):
         print("Fifth Functional Button clicked!")
-    
+
 
     
 class MyScreenManager(ScreenManager):  # ScreenManager 추가
