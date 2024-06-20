@@ -108,18 +108,19 @@ screen 명 작성 규칙 : snake
 
 """
 ! TODO ! 240618 추가
-1. Mapview 없에고 map.py의 scatterview 불러와서 작성하도록 수정
-2. 지도 이제 슬슬 선 따고 학교에 물어봐서 사진 받을 수 있는지 지도 상의 노드(숫자) map.py로 배치
-3. util.py에 메시지 AI generate 
-4. 힌트 기능 구현(힙x   서치)
-5. gps 안 할 거니까 언어 추가라도
-6. 노드 / 가중치 실측 후 추가 
-★ kivy에서 컨트롤만 할 거니까 17번 반도체대학으로 바꾸고
+★ kivy에서 matplotlib 컨트롤만 할 거니까 17번 반도체대학으로 바꾸고
+1. map.py에 matplotlib 핸들러 함수 바인딩, 여기서 toggle 경로에 대한 길찾기 알고리즘 적용
+2. input 힌트 기능에 힙서치 추가
+3. Builder로 앱 퍼블리싱 시간 되면 해서 보고서에 추가
+4. 시간 관련 기능 추가 여기서 toggle 경로에 대한 길찾기 알고리즘 사용
+5. util.py에 메시지 AI generate 
+6. 힌트 기능 구현(힙 서치)
+7. gps 안 할 거니까 언어 추가라도
+8. 노드 / 가중치 실측 후 추가 
+
 """   
 
 # 구동부
-# init 기능 추가 필요
-
 from screens import MyApp
 
 if __name__ == "__main__": 
@@ -127,3 +128,4 @@ if __name__ == "__main__":
     myapp = MyApp()
     myapp.run()
     
+   

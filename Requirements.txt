@@ -1,4 +1,7 @@
 !pip install kivy
 !pip install kivy-garden
 
+!pip install heapq
 !pip install plyer(mobile)
+시간 나면 그거 좀
+

@@ -50,8 +50,13 @@ import utils
 import map
 import input_text
 
+import heapq
+
+
+
 # MyApp 외부 메서드 , 선언 규칙 : 스크린 = snake , 위젯 , 위젯 바인딩 메서드 = _pascal
 class main_screen(Screen):
+    
     def __init__(self, app, **kwargs):
         super(main_screen, self).__init__(**kwargs)
         self.app = app
@@ -76,13 +81,14 @@ class main_screen(Screen):
         self.add_widget(self.layout)
 
     def First_Button_Clicked(self, instance):
-        print("first button pressed")
         self.app.Switch_To('first_screen') 
 
     def Second_Button_Clicked(self, instance):
-        print("second button pressed")
+        self.app.Toast_Messages("추가 예정", "입니다!")
+        print("second button pressed")  
 
     def Third_Button_Clicked(self, instance):
+        self.app.Toast_Messages("추가 예정", "입니다!!")
         print("third button pressed")
         
     def Exit_Button_Clicked(self, instance):
@@ -91,7 +97,8 @@ class main_screen(Screen):
     # 위치 정보 제공 동의 처리하는 팝업#
     def show_consent_popup(self):
         content = BoxLayout(orientation='vertical', spacing=10, padding=20)
-        label = Label(text='TrailBlazer는 고객의 정보를 소중하게 생각합니다. 제공된 위치 정보는 길찾기 기능 사용 시에만 사용되며, 앱 종료 시 지체 없이 파기합니다. 위치 정보를 제공하시겠습니까?', font_name='youth')
+        label = Label(text='TrailBlazer는 고객의 정보를 소중하게 생각합니다. 제공된 위치 정보는 길찾기 기능 사용 시에만 사용되며, 앱 종료 시 지체 없이 파기합니다. 위치 정보를 제공하시겠습니까?', font_name='youth', size_hint_y=None)
+        label.bind(size=lambda s, w: s.setter('text_size')(s, (w[0], None)))
         consent_button = Button(text='동의', font_name='youth')
         decline_button = Button(text='거절', font_name='youth')
 
@@ -137,10 +144,8 @@ class main_screen(Screen):
 
     # 길찾기 제공하는 화면 
 class first_screen(Screen):
-
     def __init__(self, app, **kwargs):
         super(first_screen, self).__init__(**kwargs)
-
         self.app = app
         self.layout = BoxLayout(orientation='vertical', spacing=0, padding=0)
         self.sublayout = BoxLayout(orientation='horizontal', spacing=10, padding=10, size_hint=(1, 1))
@@ -150,7 +155,10 @@ class first_screen(Screen):
         self.input_form_bottom = input_text.InputForm(self.layout, self.on_search)
         
         search_button = Button(text='검색', size_hint=(1, None), height=30, font_name='youth')
-        search_button.bind(on_press=self.on_search)
+        search_button.bind(on_press=self.on_search) 
+        
+        self.hint_label = Label(text='', size_hint=(1, None), height=80, font_name='youth')
+        self.layout.add_widget(self.hint_label)
         
         self.layout.add_widget(search_button)
         
@@ -160,24 +168,27 @@ class first_screen(Screen):
         Back_Button = Button(text='뒤로 가기', size_hint=(1, 1), font_name='youth')
         Back_Button.bind(on_press=self.Back_To_Main)
         self.toolbar.add_widget(Back_Button)
-            
-        First_Functional_Button = Button(text='첫 번째 기능', size_hint=(1, 1), font_name='youth')
+              
+        First_Functional_Button = Button(text='전체 그래프 보기', size_hint=(1, 1), font_name='youth')
         First_Functional_Button.bind(on_press=self.First_Functional_Button_Clicked)
         self.toolbar.add_widget(First_Functional_Button)
             
-        Second_Functional_Button = Button(text='두 번째 기능', size_hint=(1, 1), font_name='youth')
+        Second_Functional_Button = Button(text='아라테크네 위치 안내', size_hint=(1, 1), font_name='youth')
+        # 가능한 여러 경로 탐색이니까 알고리즘 뭐 써야할까?
         Second_Functional_Button.bind(on_press=self.Second_Functional_Button_Clicked)
         self.toolbar.add_widget(Second_Functional_Button)
             
-        Third_Functional_Button = Button(text='세 번째 기능', size_hint=(1, 1), font_name='youth')
+        Third_Functional_Button = Button(text='프린터 위치 안내', size_hint=(1, 1), font_name='youth')
+        # 다익스트라 최단 거리 
         Third_Functional_Button.bind(on_press=self.Third_Functional_Button_Clicked)
         self.toolbar.add_widget(Third_Functional_Button)
 
-        Fourth_Functional_Button = Button(text='네 번째 기능', size_hint=(1, 1), font_name='youth')
+        Fourth_Functional_Button = Button(text='편의점 위치 안내', size_hint=(1, 1), font_name='youth')
         Fourth_Functional_Button.bind(on_press=self.Fourth_Functional_Button_Clicked)
         self.toolbar.add_widget(Fourth_Functional_Button)
 
-        Fifth_Functional_Button = Button(text='다섯 번째 기능', size_hint=(1, 1), font_name='youth')
+        Fifth_Functional_Button = Button(text='자판기 위치 안내', size_hint=(1, 1), font_name='youth')
+        # 시간 관련 기능 추가 
         Fifth_Functional_Button.bind(on_press=self.Fifth_Functional_Button_Clicked)
         self.toolbar.add_widget(Fifth_Functional_Button)
             
@@ -202,31 +213,95 @@ class first_screen(Screen):
         self.layout.add_widget(self.sublayout)
 
         self.add_widget(self.layout)
+        
+        self.myGraph = map.create_graph()
+        
 
 
     def on_search(self, instance):
-        print("search button clicked! further make handler function !")
+        try:
+            start = self.input_form_top.text_input.text.strip()
+            end = self.input_form_bottom.text_input.text.strip()
+        except ValueError:
+            self.app.Toast_Messages("경고", "올바른 값을 입력하세요")
+            self.input_form_top.text_input.text = ""
+            self.input_form_bottom.text_input.text = ""
+            return
 
+        graph = self.build_graph_from_manager()
+
+        start_node = self.find_node_by_name(start)
+        end_node = self.find_node_by_name(end)
+
+        if not start_node or not end_node:
+            self.hint_label.text = "건물 이름을 정확히 입력하세요."
+            return
+
+        distances, shortest_path_tree = map.heap_dijkstra(graph, start_node)
+
+        if end_node in distances:
+            distance = distances[end_node]
+            self.hint_label.text = f"{start}에서 {end}까지의 거리는 {distance}입니다."
+
+            path = []
+            current_node = end_node
+            while current_node is not None:
+                path.append(current_node)
+                current_node = shortest_path_tree[current_node]
+            path = path[::-1]
+
+            self.myGraph.draw_dijkstra_graph(start_node, end_node, path)
+        else:
+            self.hint_label.text = f"{start}에서 {end}까지의 경로를 찾을 수 없습니다."
+
+    def find_node_by_name(self, name):
+        for node, data in self.myGraph.get_graph().nodes(data=True):
+            if data['name'] == name:
+                return node
+        return None
+
+    def build_graph_from_manager(self):
+        graph = {}
+        for node, data in self.myGraph.get_graph().nodes(data=True):
+            graph[node] = {}
+            for neighbor in self.myGraph.get_graph().neighbors(node):
+                graph[node][neighbor] = self.myGraph.get_graph()[node][neighbor]['weight']
+        return graph
+    
     def Back_To_Main(self, instance):
         self.app.Switch_To('main_screen') 
 
     def Exit_Button_Clicked(self, instance):
         utils.Ending_Messages(self.app)
     
+    # 전체 그래프 보기
     def First_Functional_Button_Clicked(self,instance):
-        print("First Functional Button clicked!")
-        
+         self.myGraph.draw_graph()
+
+    # 아르테크네 운영 안내        
     def Second_Functional_Button_Clicked(self,instance):
-        print("Second Functional Button clicked!")
-    
+        self.app.Toast_Messages('알림', '아르테크네 스페이스는 팀 프로젝트를 위한 공간으로, 운영 시간은 건물마다 상이합니다. 기본적으로 자유로운 대화가 가능하나 AI 공학관에서는 건물 특성상 연구실 바로 옆이라 대화를 자제해달라는 요청이 있었습니다.')
+        facility_name = '아르테크네'
+        highlight_nodes = self.myGraph.find_nodes_with_facility(facility_name)
+        self.myGraph.draw_node_graph(highlight_nodes)
+
+    # 프린터 운영 안내   
     def Third_Functional_Button_Clicked(self,instance):
-        print("Third Functional Button clicked!")
-        
+        facility_name = '프린터'
+        highlight_nodes = self.myGraph.find_nodes_with_facility(facility_name)
+        self.myGraph.draw_node_graph(highlight_nodes)
+
+    # 편의점 운영 안내       
     def Fourth_Functional_Button_Clicked(self,instance):
-        print("Fourth Functional Button clicked!")
-          
-    def Fifth_Functional_Button_Clicked(self,instance):
-        print("Fifth Functional Button clicked!")
+        facility_name = '편의점'
+        highlight_nodes = self.myGraph.find_nodes_with_facility(facility_name)
+        self.myGraph.draw_node_graph(highlight_nodes)
+
+    # 자판기 위치 안내
+    def Fifth_Functional_Button_Clicked(self,instance): 
+        facility_name = '자판기'
+        highlight_nodes = self.myGraph.find_nodes_with_facility(facility_name)
+        self.myGraph.draw_node_graph(highlight_nodes)
 
 
     
@@ -256,14 +331,26 @@ class MyApp(App):
     
     def Switch_To(self, screen_name):
         self.screen_manager.current = screen_name
-
+        
     def Toast_Messages(self, title, message):
-        toast_label = Label(text=message, font_name='youth')
-        toast_popup = Popup(title=title, content=toast_label, auto_dismiss=False, size_hint=(None, None), size=(200, 100))
-        toast_popup.open()
+        content = BoxLayout(orientation='vertical', padding = 10)
+        toast_label = Label(text=message, font_name='youth', size_hint=(1, 1))
+        toast_label.bind(size=lambda s, w: s.setter('text_size')(s, (w[0], None)))
+        
+        consent_button = Button(text='확인', font_name='youth', size_hint_y=None, height=30)       
+        consent_button.bind(on_press=lambda instance: self.popup.dismiss())   
+  
+        content.add_widget(toast_label)
+        content.add_widget(consent_button)
+        
+        self.popup = Popup(title=title, title_font='youth', content=content, auto_dismiss=False, size_hint=(0.8, 0.4))
+        self.popup.open()
+        
+
     
     def Exit_Button_Clicked(self, instance):
         utils.Ending_Messages(self.app)
+
     
     def on_request_close(self, *args):
         utils.Ending_Messages(self.app)
@@ -287,6 +374,8 @@ class MyApp(App):
         try:
             if platform in ['android', 'ios']:
                 GPS.stop()
+            else:
+                pass # Nominatim은 API 방식으로 동작해 GPS Off 불필요
         except Exception as e:
             print(f"Error stopping GPS: {e}")
         """
