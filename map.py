@@ -44,11 +44,6 @@ def heap_dijkstra(graph, start):
     return distances, shortest_path_tree
 
 
-def print_solution(distances):
-    print("Vertex Distance from Source")
-    for key, value in distances.items():
-        print(f"{key}: {value}")
-
 class Graph_Manager:
     def __init__(self):
         self.graph = nx.Graph()
@@ -71,12 +66,15 @@ class Graph_Manager:
             highlight_path = []
 
         fixed_positions = {
-            30: (-50, -0.5),
-            29: (50, 0),
+            30: (-50, 0),  # 복정동 주거단지
+            29: (50, 0),   # 가천대역 1번 출구
+            23: (0, 0),    # 무한광장
+            1: (25, 20),    # 가천관
+            17: (0, -20)   # 반도체대학
         }
 
         fixed_nodes = fixed_positions.keys()
-        pos = nx.spring_layout(self.graph, pos=fixed_positions, fixed=fixed_nodes, seed=42, k=2.5)
+        pos = nx.spring_layout(self.graph, pos=fixed_positions, fixed=fixed_nodes, seed=42, k=10)
 
         labels = nx.get_node_attributes(self.graph, 'label')
 
@@ -120,8 +118,11 @@ class Graph_Manager:
     # 노드만 출력하는 그래프, 편의시설 출력(second ~ fourth functional button clicked) 용
     def draw_node_graph(self, highlight_nodes):
         fixed_positions = {
-            30: (-50, -0.5),
-            29: (50, 0),
+            30: (-50, 0),  # 복정동 주거단지
+            29: (50, 0),   # 가천대역 1번 출구
+            23: (0, 0),    # 무한광장
+            1: (25, 20),    # 가천관
+            17: (0, -20)   # 반도체대학
         }
 
         fixed_nodes = fixed_positions.keys()
@@ -161,10 +162,14 @@ class Graph_Manager:
     
     
     # 시작 노드와 끝 노드까지의 경로를 강조하는 그래프, 다익스트라 알고리즘 출력(on_search) 용 
+    # 가천관, 가천대역 1번출구 복정동 주거단지를 중심으로 위치를 잡는다.
     def draw_dijkstra_graph(self, start_node, end_node, path):
         fixed_positions = {
-            30: (-50, -0.5),
-            29: (50, 0),
+            30: (-50, 0),  # 복정동 주거단지
+            29: (50, 0),   # 가천대역 1번 출구
+            23: (0, 0),    # 무한광장
+            1: (25, 20),    # 가천관
+            17: (0, -20)   # 반도체대학
         }
 
         fixed_nodes = fixed_positions.keys()
@@ -194,123 +199,128 @@ class Graph_Manager:
 def create_graph():
     graph_manager = Graph_Manager()
 
-    # 노드 추가
-    graph_manager.add_node(1, label='1. 가천관', name='가천관', pos=(0.1, 0.75), facilities={
-                           '아르테크네': {'위치': '가천관 1층 입구 왼편, 가천관 지하 1층, 지하 3층','운영시간': '09:00 ~ 17:00'}
-                           ,'프린터': {'위치' : '가천관 2층','운영시간' : '24시간'}})
-    
-    graph_manager.add_node(2, label='2. 비전타워', name='비전타워', pos=(0.15, 0.25), facilities={
-                           '편의점': {'위치': '비전타워 지하 4층 상점가', '운영시간': '07:00 ~ 24:00'},
-                           '아르테크네': {'위치': '비전타워 2층, 3층, 4층, 5층, 6층', '운영시간': '09:00 ~ 21:00'}
-                           , '자판기': {'위치' : '층마다 존재'}})
-    
-    graph_manager.add_node(3, label='3. 법과대학', name='법과대학', pos=(1.3, 1), facilities={
-                           '아르테크네': {'위치': '법과대학 1층 하나은행 옆','운영시간': '09:00 ~ 00:02, 00:02 이후 강제 소등'}})
-    
-    graph_manager.add_node(4, label='4. 공과대학1', name='공과대학1', pos=(1.4, 0.4), facilities={
-                           '아르테크네': {'위치': '공과대학1 2층','운영시간': '09:00 ~ 21:00'}})
-    
-    graph_manager.add_node(5, label='5. 공과대학2', name='공과대학2', pos=(1.5, 2.5), facilities={
-                           '아르테크네': {'위치': '공과대학2 1층 입구','운영시간': '09:00 ~ 21:00'}})
-    
-    graph_manager.add_node(6, label='6. 한의과대학', name='한의과대학', pos=(18, 5), facilities={})
-    
-    graph_manager.add_node(7, label='7. 예술·체육대학1', name='예술·체육대학1', pos=(8.5, 8), facilities={
-                           '아르테크네': {'위치': '예술·체육대학1 2층, 3층','운영시간': '09:00 ~ 21:00'}})
-    
-    graph_manager.add_node(8, label='8. 예술·체육대학2', name='예술·체육대학2', pos=(7, 4), facilities={
-                           '아르테크네': {'위치': '예술·체육대학2 3층','운영시간': '09:00 ~ 21:00'}})
-    
-    graph_manager.add_node(9, label='9. AI관', name='AI관', pos=(11, 0), facilities={
-                           '아르테크네': {'위치': 'AI 공학관 1층, 2층, 4층, 5층, 7층','운영시간': '24시간'}
-                               , '자판기': {'위치' : 'AI 공학관 3층, 5층'}})
-    
-    graph_manager.add_node(10, label='10. 바이오나노대학', name='바이오나노대학', pos=(17, 0.5), facilities={})
-    
-    graph_manager.add_node(11, label='11. 중앙도서관', name='중앙도서관', pos=(20, 9), facilities={
-                           '편의점': {'위치': '지하 1층','운영시간': '24:00'}})
-    
-    graph_manager.add_node(12, label='12. 전자정보도서관', name='전자정보도서관', pos=(22.5, 1.5), facilities={
-                           '프린터': {'위치': '1층 입구 오른편'}}
-                           )
-    
-    graph_manager.add_node(13, label='13. 대학원·(원격)평생교육원', name='대학원·(원격)평생교육원', pos=(24, 0), facilities={})
-    graph_manager.add_node(14, label='14. 교육대학원', name='교육대학원', pos=(22, 6), facilities={
-                           '아르테크네': {'위치': '교육대학원 1층, 2층, 4층','운영시간': '09:00 ~ 21:00'}})
-    graph_manager.add_node(15, label='15. 바이오나노연구원', name='바이오나노연구원', pos=(26, 3.5), facilities={})
-    graph_manager.add_node(16, label='16. 산학협력관1', name='산학협력관1', pos=(28, 5.5), facilities={})
-    
-    graph_manager.add_node(17, label='17. 반도체대학', name='반도체대학', pos=(30, 6), facilities={
-                           '아르테크네': {'위치': '반도체대학 1층 입구','운영시간': '24시간'}
-                               , '자판기': {'위치' : '반도체대학 1층'}})
-    
-    graph_manager.add_node(18, label='18. 학생회관/학군단', name='학생회관/학군단', pos=(34, 0), facilities={})
-    graph_manager.add_node(19, label='19. 제1학생생활관', name='제1학생생활관', pos=(36, 1.5), facilities={})
-    graph_manager.add_node(20, label='20. 제2학생생활관', name='제2학생생활관', pos=(38, 4.5), facilities={})
-    graph_manager.add_node(21, label='21. 제3학생생활관', name='제3학생생활관', pos=(40, 9), facilities={
-                           '편의점': {'위치': '1층 기숙사 오른편','운영시간': '24:00, 22:00 이후 카드 인식해야 문이 열림'},
-                           '아르테크네' : {'위치': '제3학생생활관 1층 편의점 옆','운영시간': '24시간이나 22:00 이후 기숙사생만 출입 가능하게 문이 열림'}})
-    
-    graph_manager.add_node(22, label='22. 글로벌센터', name='글로벌센터', pos=(41, 7), facilities={
-                           '아르테크네': {'위치': '글로벌센터 1층, 5층, 6층','운영시간': '09:00 ~ 21:00'}})
+        # 노드 추가
+    graph_manager.add_node(1, label='1. 가천관', name='가천관', pos=(0, 20), facilities={
+                        '아르테크네': {'위치': '가천관 1층 입구 왼편, 가천관 지하 1층, 지하 3층','운영시간': '09:00 ~ 17:00'}
+                        ,'프린터': {'위치' : '가천관 2층','운영시간' : '24시간'}})
 
-    # 23 ~ 30 은 편의시설이 없는 건물이고, 지도에 알파벳으로 표시되어 있거나 아예 없으나(29, 30)
-    # djikstra Algorithm에서 heapq으로 우선순위 큐를 구현하는데, 요소들끼리 서로 비교하는 부분(우선적으로 가중치를 비교히지만, 동일한 우선순위의 경우 두 번째 원소
-    # (여기서는 ID)을 비교하는 부분이 있어 ID는 정수형으로 정의해야 함에 유의
-    graph_manager.add_node(23, label='A. 무한광장', name='무한광장', pos=(2, 8.5), facilities={})
-    graph_manager.add_node(24, label='B. 스타덤광장', name='스타덤광장', pos=(10, 9), facilities={})
-    graph_manager.add_node(25, label='C. 프리덤광장', name='프리덤광장', pos=(9, 6.5), facilities={})
-    graph_manager.add_node(26, label='D. 바람개비광장', name='바람개비광장', pos=(13.5, 7.5), facilities={})
-    graph_manager.add_node(27, label='E. 잔디광장', name='잔디광장', pos=(18.5, 2), facilities={})
-    graph_manager.add_node(28, label='F. 대운동장', name='복대운동장', pos=(0, 10), facilities={})
-    graph_manager.add_node(29, label='G. 가천대역 1번 출구', name='가천대역 1번 출구', pos=(45, 3), facilities={})
-    graph_manager.add_node(30, label='H. 복정동 주거단지', name='복정동 주거단지',  facilities={})
+    graph_manager.add_node(2, label='2. 비전타워', name='비전타워', pos=(10, -10), facilities={
+                        '편의점': {'위치': '비전타워 지하 4층 상점가', '운영시간': '07:00 ~ 24:00'},
+                        '아르테크네': {'위치': '비전타워 2층, 3층, 4층, 5층, 6층', '운영시간': '09:00 ~ 21:00'}
+                        , '자판기': {'위치' : '층마다 존재'}})
 
+    graph_manager.add_node(3, label='3. 법과대학', name='법과대학', pos=(20, -5), facilities={
+                        '아르테크네': {'위치': '법과대학 1층 하나은행 옆','운영시간': '09:00 ~ 00:02, 00:02 이후 강제 소등'}})
 
+    graph_manager.add_node(4, label='4. 공과대학1', name='공과대학1', pos=(-10, -10), facilities={
+                        '아르테크네': {'위치': '공과대학1 2층','운영시간': '09:00 ~ 21:00'}})
 
+    graph_manager.add_node(5, label='5. 공과대학2', name='공과대학2', pos=(15, 10), facilities={
+                        '아르테크네': {'위치': '공과대학2 1층 입구','운영시간': '09:00 ~ 21:00'}})
+
+    graph_manager.add_node(6, label='6. 한의과대학', name='한의과대학', pos=(-10, 20), facilities={})
+
+    graph_manager.add_node(7, label='7. 예술·체육대학1', name='예술·체육대학1', pos=(5, 15), facilities={
+                        '아르테크네': {'위치': '예술·체육대학1 2층, 3층','운영시간': '09:00 ~ 21:00'}})
+
+    graph_manager.add_node(8, label='8. 예술·체육대학2', name='예술·체육대학2', pos=(-5, 15), facilities={
+                        '아르테크네': {'위치': '예술·체육대학2 3층','운영시간': '09:00 ~ 21:00'}})
+
+    graph_manager.add_node(9, label='9. AI관', name='AI관', pos=(-15, -10), facilities={
+                        '아르테크네': {'위치': 'AI 공학관 1층, 2층, 4층, 5층, 7층','운영시간': '24시간'}
+                            , '자판기': {'위치' : 'AI 공학관 3층, 5층'}})
+
+    graph_manager.add_node(10, label='10. 바이오나노대학', name='바이오나노대학', pos=(-20, -5), facilities={})
+
+    graph_manager.add_node(11, label='11. 중앙도서관', name='중앙도서관', pos=(20, 15), facilities={
+                        '편의점': {'위치': '지하 1층','운영시간': '24:00'}})
+
+    graph_manager.add_node(12, label='12. 전자정보도서관', name='전자정보도서관', pos=(-20, -20), facilities={
+                        '프린터': {'위치': '1층 입구 오른편'}})
+
+    graph_manager.add_node(13, label='13. 대학원·(원격)평생교육원', name='대학원·(원격)평생교육원', pos=(0, 10), facilities={})
+    graph_manager.add_node(14, label='14. 교육대학원', name='교육대학원', pos=(15, 5), facilities={
+                        '아르테크네': {'위치': '교육대학원 1층, 2층, 4층','운영시간': '09:00 ~ 21:00'}})
+    graph_manager.add_node(15, label='15. 바이오나노연구원', name='바이오나노연구원', pos=(-10, 0), facilities={})
+    graph_manager.add_node(16, label='16. 산학협력관1', name='산학협력관1', pos=(10, 20), facilities={})
+
+    graph_manager.add_node(17, label='17. 반도체대학', name='반도체대학', pos=(0, -20), facilities={
+                        '아르테크네': {'위치': '반도체대학 1층 입구','운영시간': '24시간'}
+                            , '자판기': {'위치' : '반도체대학 1층'}})
+
+    graph_manager.add_node(18, label='18. 학생회관/학군단', name='학생회관/학군단', pos=(25, -10), facilities={})
+    graph_manager.add_node(19, label='19. 제1학생생활관', name='제1학생생활관', pos=(-5, -15), facilities={})
+    graph_manager.add_node(20, label='20. 제2학생생활관', name='제2학생생활관', pos=(20, -15), facilities={})
+    graph_manager.add_node(21, label='21. 제3학생생활관', name='제3학생생활관', pos=(25, 0), facilities={
+                        '편의점': {'위치': '1층 기숙사 오른편','운영시간': '24:00, 22:00 이후 카드 인식해야 문이 열림'},
+                        '아르테크네' : {'위치': '제3학생생활관 1층 편의점 옆','운영시간': '24시간이나 22:00 이후 기숙사생만 출입 가능하게 문이 열림'}})
+
+    graph_manager.add_node(22, label='22. 글로벌센터', name='글로벌센터', pos=(-20, 10), facilities={
+                        '아르테크네': {'위치': '글로벌센터 1층, 5층, 6층','운영시간': '09:00 ~ 21:00'}})
+
+    graph_manager.add_node(23, label='A. 무한광장', name='무한광장', pos=(0, 0), facilities={})
+    graph_manager.add_node(24, label='B. 스타덤광장', name='스타덤광장', pos=(10, 0), facilities={})
+    graph_manager.add_node(25, label='C. 프리덤광장', name='프리덤광장', pos=(5, -5), facilities={})
+    graph_manager.add_node(26, label='D. 바람개비광장', name='바람개비광장', pos=(15, 0), facilities={})
+    graph_manager.add_node(27, label='E. 대정원', name='잔디광장', pos=(20, 10), facilities={})
+    graph_manager.add_node(28, label='F. 대운동장', name='대운동장', pos=(-25, 5), facilities={})
+
+    graph_manager.add_node(29, label='G. 가천대역 1번 출구', name='가천대역 1번 출구', pos=(50, 0), facilities={})
+    graph_manager.add_node(30, label='H. 복정동 주거단지', name='복정동 주거단지', pos=(-50, 0), facilities={})
     
-    graph_manager.add_edge(3, 2, weight=10)
-    graph_manager.add_edge(3, 29, weight=10)
-    graph_manager.add_edge(2, 29, weight=10)
-    graph_manager.add_edge(25, 2, weight=10)
-    graph_manager.add_edge(2, 15, weight=10)
-    graph_manager.add_edge(15, 6, weight=10)
-    graph_manager.add_edge(15, 5, weight=10)
-    graph_manager.add_edge(6, 16, weight=10)
+    graph_manager.add_edge(29, 2, weight=10)
+    graph_manager.add_edge(29, 3, weight=10)
+    
+    graph_manager.add_edge(2, 3, weight=10)
+    graph_manager.add_edge(3, 5, weight=10)
     graph_manager.add_edge(5, 16, weight=10)
     graph_manager.add_edge(16, 1, weight=10)
     graph_manager.add_edge(1, 23, weight=10)
-    graph_manager.add_edge(23, 12, weight=10)
-    graph_manager.add_edge(12, 24, weight=10)
-    graph_manager.add_edge(24, 25, weight=10)
-    graph_manager.add_edge(2, 17, weight=10)
-    graph_manager.add_edge(17, 4, weight=10)
-    graph_manager.add_edge(17, 22, weight=10)
-    
-    graph_manager.add_edge(26, 8, weight=10)
-    graph_manager.add_edge(27, 23, weight=10)
-    graph_manager.add_edge(27, 14, weight=10)
-    
-    graph_manager.add_edge(22, 30, weight=10)
-    
-    graph_manager.add_edge(22, 7, weight=10)
-    graph_manager.add_edge(22, 4, weight=10)
-    graph_manager.add_edge(4, 8, weight=10)
-    graph_manager.add_edge(22, 7, weight=10)
-    graph_manager.add_edge(7, 10, weight=10)
-    graph_manager.add_edge(10, 13, weight=10)
-    graph_manager.add_edge(13, 14, weight=10)
+    graph_manager.add_edge(23, 27, weight=10)
+    graph_manager.add_edge(27, 14, weight=10)    
     graph_manager.add_edge(14, 11, weight=10)
-    
-    graph_manager.add_edge(11, 18, weight=10)
-    graph_manager.add_edge(18, 28, weight=10)
-    graph_manager.add_edge(28, 19, weight=10)
-    graph_manager.add_edge(19, 20, weight=10)
-    graph_manager.add_edge(20, 21, weight=10)
+    graph_manager.add_edge(11, 18, weight=10)   
+    graph_manager.add_edge(18, 28, weight=10)    
+    graph_manager.add_edge(28, 19, weight=10)  
+    graph_manager.add_edge(19, 20, weight=10) 
     graph_manager.add_edge(20, 9, weight=10)
-    graph_manager.add_edge(21, 9, weight=10)
+    graph_manager.add_edge(9, 21, weight=10)
     graph_manager.add_edge(9, 30, weight=10)
-
     
+    graph_manager.add_edge(30, 22, weight=10)
+    graph_manager.add_edge(22, 7, weight=10)    
+    graph_manager.add_edge(7, 8, weight=10)    
+    graph_manager.add_edge(7, 10, weight=10) 
+    graph_manager.add_edge(7, 26, weight=10)        
+    graph_manager.add_edge(10, 13, weight=10)    
+    graph_manager.add_edge(13, 14, weight=10)          
+    graph_manager.add_edge(22, 17, weight=10)        
+    graph_manager.add_edge(17, 4, weight=10)    
+    graph_manager.add_edge(4, 27, weight=10)    
+    graph_manager.add_edge(17, 24, weight=10)   
+    graph_manager.add_edge(24, 25, weight=10)   
+    graph_manager.add_edge(24, 12, weight=10)
+    graph_manager.add_edge(25, 6, weight=10)     
+    graph_manager.add_edge(6, 15, weight=10)   
+    graph_manager.add_edge(15, 2 , weight=10)   
+
     return graph_manager
     
+
+
+"""
+    # 23 ~ 30 은 편의시설이 없는 장소이고, 지도에 알파벳으로 표시되어 있거나 아예 없으나(29, 30)
+    # djikstra Algorithm에서 heapq으로 우선순위 큐를 구현하는데, 요소들끼리 서로 비교하는 부분(우선적으로 가중치를 비교히지만, 동일한 우선순위의 경우 두 번째 원소
+    # (여기서는 ID)을 비교하는 부분이 있어 ID는 정수형으로 정의해야 함에 유의
+    graph_manager.add_node(23, label='A. 무한광장', name='무한광장', pos=(0.5, 0.5), facilities={})
+    graph_manager.add_node(24, label='B. 스타덤광장', name='스타덤광장', pos=(0.6, 0.6), facilities={})
+    graph_manager.add_node(25, label='C. 프리덤광장', name='프리덤광장', pos=(0.65, 0.55), facilities={})
+    graph_manager.add_node(26, label='D. 바람개비광장', name='바람개비광장', pos=(0.4, 0.55), facilities={})
+    graph_manager.add_node(27, label='E. 대정원', name='잔디광장', pos=(0.3, 0.45), facilities={})
+    graph_manager.add_node(28, label='F. 대운동장', name='대운동장', pos=(0.2, 0.5), facilities={})
+    
+    # 새로 추가한 노드 
+    graph_manager.add_node(29, label='G. 가천대역 1번 출구', name='가천대역 1번 출구', pos=(0.9, 0.5), facilities={})
+    graph_manager.add_node(30, label='H. 복정동 주거단지', name='복정동 주거단지', pos=(0.1, 0.5), facilities={})
+"""
+

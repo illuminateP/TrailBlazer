@@ -40,8 +40,6 @@ from kivy.core.window import Window
 from kivy.uix.floatlayout import FloatLayout
 
 from kivy.utils import platform
-
-
 from kivy.resources import resource_find
 
 
@@ -49,9 +47,6 @@ import fonts
 import utils
 import map
 import input_text
-
-import heapq
-
 
 
 # MyApp 외부 메서드 , 선언 규칙 : 스크린 = snake , 위젯 , 위젯 바인딩 메서드 = _pascal
@@ -174,12 +169,10 @@ class first_screen(Screen):
         self.toolbar.add_widget(First_Functional_Button)
             
         Second_Functional_Button = Button(text='아라테크네 위치 안내', size_hint=(1, 1), font_name='youth')
-        # 가능한 여러 경로 탐색이니까 알고리즘 뭐 써야할까?
         Second_Functional_Button.bind(on_press=self.Second_Functional_Button_Clicked)
         self.toolbar.add_widget(Second_Functional_Button)
             
         Third_Functional_Button = Button(text='프린터 위치 안내', size_hint=(1, 1), font_name='youth')
-        # 다익스트라 최단 거리 
         Third_Functional_Button.bind(on_press=self.Third_Functional_Button_Clicked)
         self.toolbar.add_widget(Third_Functional_Button)
 
@@ -188,9 +181,12 @@ class first_screen(Screen):
         self.toolbar.add_widget(Fourth_Functional_Button)
 
         Fifth_Functional_Button = Button(text='자판기 위치 안내', size_hint=(1, 1), font_name='youth')
-        # 시간 관련 기능 추가 
         Fifth_Functional_Button.bind(on_press=self.Fifth_Functional_Button_Clicked)
         self.toolbar.add_widget(Fifth_Functional_Button)
+        
+        Sixth_Functional_Button = Button(text='변경 전 건물명 보기', size_hint=(1, 1), font_name='youth')
+        Sixth_Functional_Button.bind(on_press=self.Sixth_Functional_Button_Clicked)
+        self.toolbar.add_widget(Sixth_Functional_Button)
             
         # 닫기 버튼을 눌렀을 때 종료창 호출
         Exit_Button = Button(text='종료', size_hint=(1, 1), font_name='youth')
@@ -302,6 +298,19 @@ class first_screen(Screen):
         facility_name = '자판기'
         highlight_nodes = self.myGraph.find_nodes_with_facility(facility_name)
         self.myGraph.draw_node_graph(highlight_nodes)
+        
+    # 변경 전 건물명 보기
+    def Sixth_Functional_Button_Clicked(self,instance): 
+        content = BoxLayout(orientation='vertical', padding = 10, spacing = 20)
+        image_view = Image(source=resource_find('assets/buildingname.png'), size_hint=(1, 1), allow_stretch=True, keep_ratio=False, pos_hint={'x': 0, 'y': 0})
+        exit_button = Button(text='닫기', font_name='youth', size_hint_y=None, height=30)       
+        exit_button.bind(on_press=lambda instance: self.popup.dismiss())   
+  
+        content.add_widget(image_view)
+        content.add_widget(exit_button)
+        
+        self.popup = Popup(title="변경 전 건물명 보기", title_font='youth', content=content, auto_dismiss=False, size_hint=(0.8, 0.8))
+        self.popup.open()
 
 
     
