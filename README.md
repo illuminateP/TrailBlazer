@@ -18,7 +18,10 @@
 
 1-1. 사용자 정보 추가 git config --global user.name "<사용자 이름>" git config --global user.email "<사용자 이메일>"
 
-1-2. 사용자 정보 삭제 git config --global --unset user.name "<사용자 이름>" git config --global --unset-all user.name git config --global --unset user.email "<사용자 이메일>" git config --global --unset-all user.email
+1-2. 사용자 정보 삭제 git config --global --unset user.name "<사용자 이름>"
+1-2. 사용자 정보 삭제 git config --global --unset-all user.name 
+1-2. 사용자 정보 삭제 git config --global --unset user.email "<사용자 이메일>"
+1-2. 사용자 정보 삭제 git config --global --unset-all user.email
 
 1-3. 사용자 정보 확인 git config --global --list
 
@@ -52,13 +55,15 @@
 
 브랜치는 작업 흐름을 분리하여 협업과 변경사항 관리를 돕는 기능입니다.
 
-6-1. 브랜치 목록 보기 git branch : 로컬 브랜치 목록 확인 git branch -a : 모든 로컬 및 원격 브랜치 목록 확인
+6-1. 브랜치 목록 보기 git branch : 로컬 브랜치 목록 확인 
+6-2. git branch -a : 모든 로컬 및 원격 브랜치 목록 확인
 
-6-2. 브랜치 이동 및 생성 git checkout <브랜치명> : 특정 브랜치로 이동 git checkout -b <새 브랜치명> : 새 브랜치를 생성하고 이동
+6-3. 브랜치 이동 및 생성 git checkout <브랜치명> : 특정 브랜치로 이동 git checkout -b <새 브랜치명> : 새 브랜치를 생성하고 이동
 
-6-3. 원격 브랜치 최신 상태 동기화 git fetch --all
+6-4. 원격 브랜치 최신 상태 동기화 git fetch --all
 
-6-4. 브랜치 삭제 git branch -d <브랜치명> : 로컬 브랜치를 삭제 git push origin --delete <브랜치명> : 원격 브랜치를 삭제
+6-5. 브랜치 삭제 git branch -d <브랜치명> : 로컬 브랜치를 삭제 
+6-6. git push origin --delete <브랜치명> : 원격 브랜치를 삭제
 
 * commit과 push의 차이
 
