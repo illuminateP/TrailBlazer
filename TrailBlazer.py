@@ -96,12 +96,6 @@ screen 명 작성 규칙 : snake
   'size', 'size_hint', 'size_hint_max', 'size_hint_max_x', 'size_hint_max_y', 'size_hint_min', 'size_hint_min_x', 'size_hint_min_y', 'size_hint_x', 'size_hint_y', 'title', 'title_align', 'title_color', 'title_font', 'title_size', 'top', 'width', 'x', 'y']
   여기서 찾음
 
-  2. 한글 지원 안 되는 라이브러리 쓰니까 진짜 ㅆ
-  아니 힘들었다
-
-  3.내가 프론트를 더럽게 못 하는데 AI가 대신 해 줘서 편했다
-
-  4.자료가 정말 없고 그나마 있는 것도 영어 자료니까 한국어로 물어볼 때 AI도 이상한 소리를 많이 한다
 
 ##################################################################################
 """
